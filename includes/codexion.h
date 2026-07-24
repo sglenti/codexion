@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/19 13:19:01 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/20 21:01:42 by slenti           ###   ########.fr       */
+/*   Updated: 2026/07/25 00:03:00 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,17 +16,28 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <pthread.h>
+# include <sys/time.h>
 # include <stdio.h>
 # include <string.h>
 
 typedef struct s_coder
 {
-	void	*stack;
+	int		id;
+	int		pid;
+	void	*l_dongle;
+	void	*r_dongle;
+	int		status;
+	int		compiles_left;
+	int		timeout;
 }		t_coder;
 
 typedef struct s_dongle
 {
-	void	*stack;
+	int				id;
+	int				status;
+	long			cooldown_start;
+	pthread_mutex_t	mutex;
+	pthread_cond_t	cond_wait;
 }		t_dongle;
 
 typedef struct s_simulation
@@ -41,11 +52,45 @@ typedef struct s_simulation
 	int	scheduler;
 }		t_simulation;
 
+typedef struct s_common_data {
+    t_simulation    *settings;
+    t_dongle        *dongles;
+    t_coder         *coders;
+    pthread_mutex_t log_mutex;
+    pthread_mutex_t sched_mutex;
+    int            is_running;
+    pthread_mutex_t state_mutex;
+    struct timeval  start_time;
+} t_common_data;
+
 enum	Sched
 {
 	WRONG,
 	FIFO,
 	EDF
 };
+
+enum	Status
+{
+	AVAILABLE,
+	TAKEN,
+	COOLING
+};
+
+enum	Result
+{
+	SUCCESS,
+	FAILURE
+};
+
+void	cleanup(void **ptr);
+int		print_error(char *msg);
+void	parse_args(t_simulation** simulation_ptr, int args_count, char** args);
+void	simulate(t_simulation* settings);
+void	start_monitor(t_common_data *data, pthread_t *monitor);
+long	get_elapsed_ms(struct timeval start);
+int		create_coders(t_common_data *data, t_simulation *settings);
+int		start_coders(t_common_data *data);
+void	wait_for_coders(void);
 
 #endif
