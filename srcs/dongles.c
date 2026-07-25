@@ -41,6 +41,7 @@ int	create_dongles(t_common_data *data, t_simulation *settings)
 	i = 0;
 	while (i < settings->number_of_coders)
 	{
+/*
 		if (i == 3) // Force failure on the 4th iteration
 		{
 			pthread_mutex_destroy(&data->dongles[i].mutex);
@@ -48,6 +49,7 @@ int	create_dongles(t_common_data *data, t_simulation *settings)
 			clear_dongles(data, i);
 			return (FAILURE);
 		}
+*/
 		data->dongles[i].id = i + 1; 
 		data->dongles[i].status = AVAILABLE;
 		if (pthread_mutex_init(&data->dongles[i].mutex, NULL))

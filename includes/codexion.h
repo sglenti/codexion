@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/19 13:19:01 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/25 13:25:55 by slenti           ###   ########.fr       */
+/*   Updated: 2026/07/25 17:28:09 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,6 @@
 # include <stdio.h>
 # include <string.h>
 
-typedef struct s_coder
-{
-	int		id;
-	int		pid;
-	void	*l_dongle;
-	void	*r_dongle;
-	int		status;
-	int		compiles_left;
-	int		timeout;
-}		t_coder;
-
 typedef struct s_dongle
 {
 	int				id;
@@ -39,6 +28,17 @@ typedef struct s_dongle
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond_wait;
 }		t_dongle;
+
+typedef struct s_coder
+{
+	int			id;
+	int			pid;
+	int			status;
+	int			compiles_left;
+	int			last_complile_time;
+	t_dongle	*l_dongle;
+	t_dongle	*r_dongle;
+}		t_coder;
 
 typedef struct s_simulation
 {
@@ -74,7 +74,12 @@ enum	Status
 {
 	AVAILABLE,
 	TAKEN,
-	COOLING
+	COOLING,
+	WAITING,
+	COMPILE,
+	DEBUG,
+	REFACTOR,
+	BURNT_OUT
 };
 
 enum	Result

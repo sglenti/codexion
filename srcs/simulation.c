@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/25 14:00:14 by slenti           ###   ########.fr       */
+/*   Updated: 2026/07/25 17:38:12 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ void clean_all(t_common_data **data, int count)
 {
 	if (!count)
 		return;
-	//clear_dongles(*data, count * 0);
+	clear_dongles(*data, count * 0);
+	free((*data)->coders);
 	free(*data);
 	*data = NULL;
 }
@@ -41,9 +42,8 @@ void	simulate(t_simulation* settings)
 	data->settings = settings;
 	// create resources:
 	//create_locks(data, settins);
-	if (create_dongles(data, settings))
+	if (create_dongles(data, settings) || create_coders(data, settings))
 		return (clean_all(&data, settings->number_of_coders));
-	create_coders(data, settings);
 
 	// Start simulation:
 	gettimeofday(&data->start_time, NULL);
