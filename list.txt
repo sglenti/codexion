@@ -1,0 +1,9 @@
+Makefile
+includes/codexion.h
+srcs/main.c
+srcs/validate.c
+srcs/error.c
+srcs/simulation.c
+srcs/dongles.c
+srcs/monitor.c
+srcs/coders.c

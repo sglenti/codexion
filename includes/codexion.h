@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/19 13:19:01 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/25 00:03:00 by slenti           ###   ########.fr       */
+/*   Updated: 2026/07/25 13:25:55 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,5 +92,7 @@ long	get_elapsed_ms(struct timeval start);
 int		create_coders(t_common_data *data, t_simulation *settings);
 int		start_coders(t_common_data *data);
 void	wait_for_coders(void);
+int		create_dongles(t_common_data *data, t_simulation *settings);
+void	clear_dongles(t_common_data *data, int count);
 
 #endif
