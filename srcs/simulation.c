@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/25 17:38:12 by slenti           ###   ########.fr       */
+/*   Updated: 2026/07/26 13:30:26 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,13 @@ void	create_locks(t_common_data *data){
 		return;
 }
 
-
 void clean_all(t_common_data **data, int count)
 {
 	if (!count)
 		return;
 	clear_dongles(*data, count * 0);
 	free((*data)->coders);
+	(*data)->coders = NULL;
 	free(*data);
 	*data = NULL;
 }
@@ -42,7 +42,7 @@ void	simulate(t_simulation* settings)
 	data->settings = settings;
 	// create resources:
 	//create_locks(data, settins);
-	if (create_dongles(data, settings) || create_coders(data, settings))
+	if (create_dongles(data, settings) || create_coders(data))
 		return (clean_all(&data, settings->number_of_coders));
 
 	// Start simulation:
@@ -54,7 +54,7 @@ void	simulate(t_simulation* settings)
 	start_coders(data);
 
 	// wait for completion:
-	wait_for_coders();
+	wait_for_coders(data);
 	pthread_join(monitor_id, NULL);
 	// cleanup:
 	clean_all(&data, settings->number_of_coders);

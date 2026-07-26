@@ -1,13 +1,13 @@
 /* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   codexion.h                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/19 13:19:01 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/25 17:28:09 by slenti           ###   ########.fr       */
-/*                                                                            */
+/*																			  */
+/*														  :::	   ::::::::   */
+/*	 codexion.h											:+:		 :+:	:+:   */
+/*													  +:+ +:+		  +:+	  */
+/*	 By: slenti <slenti@student.42porto.com>		+#+  +:+	   +#+		  */
+/*												  +#+#+#+#+#+	+#+			  */
+/*	 Created: 2026/07/19 13:19:01 by slenti			   #+#	  #+#			  */
+/*	 Updated: 2026/07/25 19:57:29 by slenti			  ###	########.fr		  */
+/*																			  */
 /* ************************************************************************** */
 
 #ifndef CODEXION_H
@@ -31,13 +31,14 @@ typedef struct s_dongle
 
 typedef struct s_coder
 {
-	int			id;
-	int			pid;
-	int			status;
-	int			compiles_left;
-	int			last_complile_time;
-	t_dongle	*l_dongle;
-	t_dongle	*r_dongle;
+	int				id;
+	pthread_t		thread;
+	int				status;
+	int				compiles_left;
+	int				last_complile_time;
+	t_dongle		*l_dongle;
+	t_dongle		*r_dongle;
+	void 			*data;
 }		t_coder;
 
 typedef struct s_simulation
@@ -53,14 +54,14 @@ typedef struct s_simulation
 }		t_simulation;
 
 typedef struct s_common_data {
-    t_simulation    *settings;
-    t_dongle        *dongles;
-    t_coder         *coders;
-    pthread_mutex_t log_mutex;
-    pthread_mutex_t sched_mutex;
-    int            is_running;
-    pthread_mutex_t state_mutex;
-    struct timeval  start_time;
+	t_simulation	*settings;
+	t_dongle		*dongles;
+	t_coder			*coders;
+	pthread_mutex_t	log_mutex;
+	pthread_mutex_t	sched_mutex;
+	int				is_running;
+	pthread_mutex_t	state_mutex;
+	struct timeval	start_time;
 } t_common_data;
 
 enum	Sched
@@ -94,9 +95,9 @@ void	parse_args(t_simulation** simulation_ptr, int args_count, char** args);
 void	simulate(t_simulation* settings);
 void	start_monitor(t_common_data *data, pthread_t *monitor);
 long	get_elapsed_ms(struct timeval start);
-int		create_coders(t_common_data *data, t_simulation *settings);
+int		create_coders(t_common_data *data);
 int		start_coders(t_common_data *data);
-void	wait_for_coders(void);
+void	wait_for_coders(t_common_data *data);
 int		create_dongles(t_common_data *data, t_simulation *settings);
 void	clear_dongles(t_common_data *data, int count);
 
