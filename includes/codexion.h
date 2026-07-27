@@ -59,8 +59,8 @@ typedef struct s_common_data {
 	t_coder			*coders;
 	pthread_mutex_t	log_mutex;
 	pthread_mutex_t	sched_mutex;
-	int				is_running;
 	pthread_mutex_t	state_mutex;
+	int				is_running;
 	struct timeval	start_time;
 } t_common_data;
 

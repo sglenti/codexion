@@ -6,27 +6,49 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/26 13:30:26 by slenti           ###   ########.fr       */
+/*   Updated: 2026/07/27 20:32:38 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
 
-void	create_locks(t_common_data *data){
-	if (data)
-		return;
+int	create_gen_locks(t_common_data *data){
+	if (pthread_mutex_init(&data->log_mutex, NULL))
+	{
+		fprintf(stderr, "Error: Failed to create log mutex\n");
+		return (FAILURE);
+	}
+	if (pthread_mutex_init(&data->state_mutex, NULL))
+	{
+		fprintf(stderr, "Error: Failed to create state mutex\n");
+		pthread_mutex_destroy(&data->log_mutex);
+		return (FAILURE);
+	}
+	if (pthread_mutex_init(&data->sched_mutex, NULL))
+	{
+		fprintf(stderr, "Error: Failed to create sched mutex\n");
+		pthread_mutex_destroy(&data->log_mutex);
+		pthread_mutex_destroy(&data->state_mutex);
+		return (FAILURE);
+	}
+	return (SUCCESS);
 }
 
-void clean_all(t_common_data **data, int count)
+void	clean_all(t_common_data **data, int count)
 {
-	if (!count)
-		return;
-	clear_dongles(*data, count * 0);
+	clear_dongles(*data, count);
 	free((*data)->coders);
 	(*data)->coders = NULL;
 	free(*data);
 	*data = NULL;
+}
+
+void	clean_locks(t_common_data *data)
+{
+	pthread_mutex_destroy(&data->log_mutex);
+	pthread_mutex_destroy(&data->sched_mutex);
+	pthread_mutex_destroy(&data->state_mutex);
 }
 
 void	simulate(t_simulation* settings)
@@ -41,9 +63,10 @@ void	simulate(t_simulation* settings)
 	// load settings:
 	data->settings = settings;
 	// create resources:
-	//create_locks(data, settins);
+	if (create_gen_locks(data))
+		return (clean_all(&data, 0));
 	if (create_dongles(data, settings) || create_coders(data))
-		return (clean_all(&data, settings->number_of_coders));
+		return (clean_all(&data, settings->number_of_coders), clean_locks(data));
 
 	// Start simulation:
 	gettimeofday(&data->start_time, NULL);
@@ -57,5 +80,6 @@ void	simulate(t_simulation* settings)
 	wait_for_coders(data);
 	pthread_join(monitor_id, NULL);
 	// cleanup:
+	clean_locks(data);
 	clean_all(&data, settings->number_of_coders);
 }
