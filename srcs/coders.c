@@ -13,6 +13,15 @@
 #include "codexion.h"
 
 
+void	switch_dongles(t_coder *coder)
+{
+	t_dongle	*tmp;
+
+	tmp = coder->dongle_1;
+	coder->dongle_1 = coder->dongle_2;
+	coder->dongle_2 = tmp;	
+}
+
 int	create_coders(t_common_data *data)
 {
 	int	i;
@@ -31,11 +40,12 @@ int	create_coders(t_common_data *data)
 		data->coders[i].last_complile_time = 0;
 		data->coders[i].compiles_left = \
 			data->settings->number_of_compiles_required;
-		data->coders[i].l_dongle = &data->dongles[(n * ((n - i) / n)) + i - 1];
-		data->coders[i].r_dongle = &data->dongles[i];
+		data->coders[i].dongle_1 = &data->dongles[(n + (i - 1)) % n];
+		data->coders[i].dongle_2 = &data->dongles[i];
 		data->coders[i].data = data;
 		i++;
 	}
+	switch_dongles(&data->coders[0]);
 	return (SUCCESS);
 }
 
@@ -50,19 +60,19 @@ static void	*code(void *args)
 	while (coder->compiles_left)
 	{
 		// Critical section: protect access to data->counter
-		pthread_mutex_lock(&coder->l_dongle->mutex);
+		pthread_mutex_lock(&coder->dongle_1->mutex);
 		now = get_elapsed_ms(data->start_time);
-		printf("%ld %d has takenk a dongle\n", now, coder->id);
-		
-		pthread_mutex_lock(&coder->r_dongle->mutex);
+		printf("%ld %d has taken a dongle(%d)\n", now, coder->id, coder->dongle_1->id);
+		usleep(10);
+		pthread_mutex_lock(&coder->dongle_2->mutex);
 		now = get_elapsed_ms(data->start_time);
-		printf("%ld %d has takenk a dongle\n", now, coder->id);
+		printf("%ld %d has taken a dongle(%d)\n", now, coder->id, coder->dongle_2->id);
 		printf("%ld %d is compiling\n", now, coder->id);
 		usleep(data->settings->time_to_compile * 1000);
 		coder->compiles_left -= 1;
 		
-		pthread_mutex_unlock(&coder->l_dongle->mutex);
-		pthread_mutex_unlock(&coder->r_dongle->mutex);
+		pthread_mutex_unlock(&coder->dongle_1->mutex);
+		pthread_mutex_unlock(&coder->dongle_2->mutex);
 
 		now = get_elapsed_ms(data->start_time);
 		printf("%ld %d is debugging\n", now, coder->id);
@@ -85,7 +95,24 @@ int start_coders(t_common_data *data)
 	while (i < data->settings->number_of_coders)
 	{
 		if (pthread_create(&coders[i].thread, NULL, code, &coders[i]))
+		{
+			// 1. Tell everyone to stop
+            /*
+			pthread_mutex_lock(&data->state_mutex);
+            data->is_running = false; 
+            pthread_mutex_unlock(&data->state_mutex);
+			*/
+
+            // 2. Join the ones that actually started
+            int j = 0;
+            while (j < i)
+            {
+                pthread_join(data->coders[j].thread, NULL);
+                j++;
+            }
+			fprintf(stderr, "Error: Failed to create thread %d\n", i);
 			return (FAILURE); // NEED TO HANDLE ERROR!!!
+		}
 		i++;
 	}
 	return (SUCCESS);
@@ -101,8 +128,7 @@ void wait_for_coders(t_common_data *data)
 	while (i < data->settings->number_of_coders)
 	{
 		if (pthread_join(coders[i].thread, NULL) != 0)
-			return ; // NEED TO HANDLE ERROR!!!
+			fprintf(stderr, "Error: Failed to join thread %d\n", i);
 		i++;
 	}
 }
-

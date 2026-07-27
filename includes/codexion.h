@@ -36,8 +36,8 @@ typedef struct s_coder
 	int				status;
 	int				compiles_left;
 	int				last_complile_time;
-	t_dongle		*l_dongle;
-	t_dongle		*r_dongle;
+	t_dongle		*dongle_1;
+	t_dongle		*dongle_2;
 	void 			*data;
 }		t_coder;
 
