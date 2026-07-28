@@ -89,6 +89,12 @@ enum	Result
 	FAILURE
 };
 
+#define DONGLE "%ld %d has taken a dongle(%d)\n"
+#define COMPILE "%ld %d is compiling\n"
+#define DEBBUG "%ld %d is debugging\n"
+#define REFACT "%ld %d is refactoring\n"
+#define BURNED "%ld %d burned out\n"
+
 void	cleanup(void **ptr);
 int		print_error(char *msg);
 void	parse_args(t_simulation** simulation_ptr, int args_count, char** args);

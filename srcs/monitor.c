@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/24 17:38:58 by slenti           ###   ########.fr       */
+/*   Updated: 2026/07/28 23:35:12 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,26 +26,34 @@ long	get_elapsed_ms(struct timeval start)
 
 static void	*m_check(void *args)
 {
-	long 			current_time;
+	long 			now;
 	t_common_data	*data;
+	int				i;
+	t_coder			coder;
 
 	data = (t_common_data *)args;
-	while (1)
+	data->is_running = 1;
+	while (data->is_running)
 	{
-		current_time = get_elapsed_ms(data->start_time);
-		printf("%li\n", current_time);
-		if (current_time > 2000)
-			break;
-		usleep(1000000);
-		
-		// Check if the coder has exceeded their allowed time
-		//if (current_time - coder->last_compile_start > data->settings->time_to_burnout)
-		//{
-		//
-			// TRIGGER BURN OUT
-		//}
+		i = 0;
+		now = get_elapsed_ms(data->start_time);
+		while (i < data->settings->number_of_coders)
+		{
+			coder = data->coders[i];
+			// Check if the coder has exceeded their allowed time
+			printf("%ld - %d - %d\n", now, coder.last_complile_time, data->settings->time_to_burnout);
+			if (now - coder.last_complile_time > data->settings->time_to_burnout)
+			{
+				// TRIGGER BURN OUT
+				write_log("%ld %d burned out\n", now, coder.id, 0, data->log_mutex);
+				data->is_running = 0;
+				break ;
+			}
+			i++;
+		}
+		usleep(100000);
 	}
-		return NULL;
+	return NULL;
 }
 
 void	start_monitor(t_common_data *data, pthread_t *monitor)

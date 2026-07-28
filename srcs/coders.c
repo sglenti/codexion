@@ -57,30 +57,40 @@ static void	*code(void *args)
 
 	coder = (t_coder *)args;
 	data = (t_common_data *)coder->data;
-	
-	while (coder->compiles_left)
+	while (1)
 	{
-		// Critical section: protect access to data->counter
+		// get dongle 1:
 		pthread_mutex_lock(&coder->dongle1->mutex);
+		if (!coder->compiles_left || !data->is_running)
+			break ;
 		now = get_elapsed_ms(data->start_time);
-		write_log("%ld %d has taken a dongle(%d)\n", now, coder->id, coder->dongle1->id, data->log_mutex);
-		usleep(10);
+		write_log(DONGLE, now, coder->id, coder->dongle1->id, data->log_mutex);
+
+		// get dongle 2 and compile:
 		pthread_mutex_lock(&coder->dongle2->mutex);
+		if (!coder->compiles_left || !data->is_running)
+			break ;
 		now = get_elapsed_ms(data->start_time);
-		write_log("%ld %d has taken a dongle(%d)\n", now, coder->id, coder->dongle2->id, data->log_mutex);
-		write_log("%ld %d is compiling\n", now, coder->id, 0, data->log_mutex);
-		usleep(data->settings->time_to_compile * 1000);
+		coder->last_complile_time = now;
 		coder->compiles_left -= 1;
-		
+		write_log(DONGLE, now, coder->id, coder->dongle2->id, data->log_mutex);
+		write_log(COMPILE, now, coder->id, 0, data->log_mutex);
+		usleep(data->settings->time_to_compile * 1000);
 		pthread_mutex_unlock(&coder->dongle1->mutex);
 		pthread_mutex_unlock(&coder->dongle2->mutex);
 
+		if (!coder->compiles_left || !data->is_running)
+			break ;
+		// debug
 		now = get_elapsed_ms(data->start_time);
-		write_log("%ld %d is debugging\n", now, coder->id, 0, data->log_mutex);
+		write_log(DEBBUG, now, coder->id, 0, data->log_mutex);
 		usleep(data->settings->time_to_debug * 1000);
 
+		if (!coder->compiles_left || !data->is_running)
+			break ;
+		// refactor
 		now = get_elapsed_ms(data->start_time);
-		write_log("%ld %d is refactoring\n", now, coder->id, 0, data->log_mutex);
+		write_log(REFACT, now, coder->id, 0, data->log_mutex);
 		usleep(data->settings->time_to_refactor * 1000);
 	}
 	return NULL;
@@ -132,4 +142,5 @@ void wait_for_coders(t_common_data *data)
 			fprintf(stderr, "Error: Failed to join thread %d\n", i);
 		i++;
 	}
+	data->is_running = 0;
 }
