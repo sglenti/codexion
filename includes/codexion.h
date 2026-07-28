@@ -36,8 +36,8 @@ typedef struct s_coder
 	int				status;
 	int				compiles_left;
 	int				last_complile_time;
-	t_dongle		*dongle_1;
-	t_dongle		*dongle_2;
+	t_dongle		*dongle1;
+	t_dongle		*dongle2;
 	void 			*data;
 }		t_coder;
 
@@ -100,5 +100,6 @@ int		start_coders(t_common_data *data);
 void	wait_for_coders(t_common_data *data);
 int		create_dongles(t_common_data *data, t_simulation *settings);
 void	clear_dongles(t_common_data *data, int count);
+void	write_log(char *str, long time, int id, int d_id, pthread_mutex_t mutex);
 
 #endif

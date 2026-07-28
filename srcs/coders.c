@@ -17,9 +17,9 @@ void	switch_dongles(t_coder *coder)
 {
 	t_dongle	*tmp;
 
-	tmp = coder->dongle_1;
-	coder->dongle_1 = coder->dongle_2;
-	coder->dongle_2 = tmp;	
+	tmp = coder->dongle1;
+	coder->dongle1 = coder->dongle2;
+	coder->dongle2 = tmp;	
 }
 
 int	create_coders(t_common_data *data)
@@ -40,8 +40,8 @@ int	create_coders(t_common_data *data)
 		data->coders[i].last_complile_time = 0;
 		data->coders[i].compiles_left = \
 			data->settings->number_of_compiles_required;
-		data->coders[i].dongle_1 = &data->dongles[(n + (i - 1)) % n];
-		data->coders[i].dongle_2 = &data->dongles[i];
+		data->coders[i].dongle1 = &data->dongles[(n + (i - 1)) % n];
+		data->coders[i].dongle2 = &data->dongles[i];
 		data->coders[i].data = data;
 		i++;
 	}
@@ -57,29 +57,30 @@ static void	*code(void *args)
 
 	coder = (t_coder *)args;
 	data = (t_common_data *)coder->data;
+	
 	while (coder->compiles_left)
 	{
 		// Critical section: protect access to data->counter
-		pthread_mutex_lock(&coder->dongle_1->mutex);
+		pthread_mutex_lock(&coder->dongle1->mutex);
 		now = get_elapsed_ms(data->start_time);
-		printf("%ld %d has taken a dongle(%d)\n", now, coder->id, coder->dongle_1->id);
+		write_log("%ld %d has taken a dongle(%d)\n", now, coder->id, coder->dongle1->id, data->log_mutex);
 		usleep(10);
-		pthread_mutex_lock(&coder->dongle_2->mutex);
+		pthread_mutex_lock(&coder->dongle2->mutex);
 		now = get_elapsed_ms(data->start_time);
-		printf("%ld %d has taken a dongle(%d)\n", now, coder->id, coder->dongle_2->id);
-		printf("%ld %d is compiling\n", now, coder->id);
+		write_log("%ld %d has taken a dongle(%d)\n", now, coder->id, coder->dongle2->id, data->log_mutex);
+		write_log("%ld %d is compiling\n", now, coder->id, 0, data->log_mutex);
 		usleep(data->settings->time_to_compile * 1000);
 		coder->compiles_left -= 1;
 		
-		pthread_mutex_unlock(&coder->dongle_1->mutex);
-		pthread_mutex_unlock(&coder->dongle_2->mutex);
+		pthread_mutex_unlock(&coder->dongle1->mutex);
+		pthread_mutex_unlock(&coder->dongle2->mutex);
 
 		now = get_elapsed_ms(data->start_time);
-		printf("%ld %d is debugging\n", now, coder->id);
+		write_log("%ld %d is debugging\n", now, coder->id, 0, data->log_mutex);
 		usleep(data->settings->time_to_debug * 1000);
 
 		now = get_elapsed_ms(data->start_time);
-		printf("%ld %d is refactoring\n", now, coder->id);
+		write_log("%ld %d is refactoring\n", now, coder->id, 0, data->log_mutex);
 		usleep(data->settings->time_to_refactor * 1000);
 	}
 	return NULL;
@@ -97,19 +98,19 @@ int start_coders(t_common_data *data)
 		if (pthread_create(&coders[i].thread, NULL, code, &coders[i]))
 		{
 			// 1. Tell everyone to stop
-            /*
+			/*
 			pthread_mutex_lock(&data->state_mutex);
-            data->is_running = false; 
-            pthread_mutex_unlock(&data->state_mutex);
+			data->is_running = false; 
+			pthread_mutex_unlock(&data->state_mutex);
 			*/
 
-            // 2. Join the ones that actually started
-            int j = 0;
-            while (j < i)
-            {
-                pthread_join(data->coders[j].thread, NULL);
-                j++;
-            }
+			// 2. Join the ones that actually started
+			int j = 0;
+			while (j < i)
+			{
+				pthread_join(data->coders[j].thread, NULL);
+				j++;
+			}
 			fprintf(stderr, "Error: Failed to create thread %d\n", i);
 			return (FAILURE); // NEED TO HANDLE ERROR!!!
 		}
