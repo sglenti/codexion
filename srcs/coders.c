@@ -61,15 +61,22 @@ static void	*code(void *args)
 	{
 		// get dongle 1:
 		pthread_mutex_lock(&coder->dongle1->mutex);
-		if (!coder->compiles_left || !data->is_running)
+		if (!data->is_running)
+		{
+			pthread_mutex_unlock(&coder->dongle1->mutex);
 			break ;
+		}
 		now = get_elapsed_ms(data->start_time);
 		write_log(DONGLE, now, coder->id, coder->dongle1->id, data->log_mutex);
 
 		// get dongle 2 and compile:
 		pthread_mutex_lock(&coder->dongle2->mutex);
-		if (!coder->compiles_left || !data->is_running)
+		if (!data->is_running)
+		{
+			pthread_mutex_unlock(&coder->dongle1->mutex);
+			pthread_mutex_unlock(&coder->dongle2->mutex);
 			break ;
+		}
 		now = get_elapsed_ms(data->start_time);
 		coder->last_complile_time = now;
 		coder->compiles_left -= 1;
@@ -86,7 +93,7 @@ static void	*code(void *args)
 		write_log(DEBBUG, now, coder->id, 0, data->log_mutex);
 		usleep(data->settings->time_to_debug * 1000);
 
-		if (!coder->compiles_left || !data->is_running)
+		if (!data->is_running)
 			break ;
 		// refactor
 		now = get_elapsed_ms(data->start_time);

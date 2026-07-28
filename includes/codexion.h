@@ -35,7 +35,7 @@ typedef struct s_coder
 	pthread_t		thread;
 	int				status;
 	int				compiles_left;
-	int				last_complile_time;
+	long			last_complile_time;
 	t_dongle		*dongle1;
 	t_dongle		*dongle2;
 	void 			*data;
