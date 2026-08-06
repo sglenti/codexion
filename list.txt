@@ -7,3 +7,4 @@ srcs/simulation.c
 srcs/dongles.c
 srcs/monitor.c
 srcs/coders.c
+srcs/logger.c

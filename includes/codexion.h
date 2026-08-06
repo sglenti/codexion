@@ -23,7 +23,7 @@
 typedef struct s_dongle
 {
 	int				id;
-	int				status;
+	int				is_taken;
 	long			cooldown_start;
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond_wait;
