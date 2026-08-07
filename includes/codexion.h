@@ -107,5 +107,6 @@ void	wait_for_coders(t_common_data *data);
 int		create_dongles(t_common_data *data, t_simulation *settings);
 void	clear_dongles(t_common_data *data, int count);
 void	write_log(char *str, long time, int id, int d_id, pthread_mutex_t mutex);
+void	*coder_routine(void *args);
 
 #endif

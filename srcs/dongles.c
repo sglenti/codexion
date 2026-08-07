@@ -51,7 +51,8 @@ int	create_dongles(t_common_data *data, t_simulation *settings)
 		}
 */
 		data->dongles[i].id = i + 1; 
-		data->dongles[i].status = AVAILABLE;
+		data->dongles[i].is_taken = 0;
+		data->dongles[i].cooldown_start = 0;
 		if (pthread_mutex_init(&data->dongles[i].mutex, NULL))
 		{
 			clear_dongles(data, i);
