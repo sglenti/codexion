@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 18:14:08 by slenti            #+#    #+#             */
-/*   Updated: 2026/08/07 18:32:26 by slenti           ###   ########.fr       */
+/*   Updated: 2026/08/09 00:05:46 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ struct timespec get_abs_timeout(long timeout_ms)
 	return abs_timeout;
 }
 
-void	wait_for_cooldown(t_dongle *dongle, t_common_data *data)
+void	get_dongle(t_dongle *dongle, t_common_data *data)
 {
 	long			now;
 	long			wait_remaining;
@@ -62,15 +62,20 @@ int	adquire_dongles(t_coder *coder, t_common_data *data)
 {
 	long			now;
 
+	pthread_mutex_lock(&data->sched_mutex);
+	push_heap(&coder->dongle1->heap, coder->id, priority);
+	push_heap(&coder->dongle2->heap, coder->id, priority);
+	
 	// get dongle 1:
-	pthread_mutex_lock(&coder->dongle1->mutex);
 	if (!data->is_running)
 	{
 		pthread_mutex_unlock(&coder->dongle1->mutex);
 		return (1) ;
 	}
-	wait_for_cooldown(coder->dongle1, data);
-	coder->dongle1->is_taken = 0;
+	get_dongle(coder->dongle1, data);
+	pthread_mutex_unlock(&data->sched_mutex);
+	pthread_mutex_lock(&coder->dongle1->mutex);
+	coder->dongle1->is_taken = 1;
 	now = get_elapsed_ms(data->start_time);
 	write_log(DONGLE, now, coder->id, coder->dongle1->id, data->log_mutex);
 
@@ -82,8 +87,8 @@ int	adquire_dongles(t_coder *coder, t_common_data *data)
 		pthread_mutex_unlock(&coder->dongle2->mutex);
 		return (1) ;
 	}
-	wait_for_cooldown(coder->dongle2, data);
-	coder->dongle2->is_taken = 0;
+	get_dongle(coder->dongle2, data);
+	coder->dongle2->is_taken = 1;
 	now = get_elapsed_ms(data->start_time);
 	write_log(DONGLE, now, coder->id, coder->dongle2->id, data->log_mutex);
 	return (0);

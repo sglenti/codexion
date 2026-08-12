@@ -8,3 +8,4 @@ srcs/dongles.c
 srcs/monitor.c
 srcs/coders.c
 srcs/logger.c
+srcs/coder_routine.c

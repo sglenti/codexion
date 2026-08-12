@@ -20,13 +20,23 @@
 # include <stdio.h>
 # include <string.h>
 
+typedef struct s_heap_node {
+	int		coder_id;
+	long	priority; // arrival_time (for FIFO) or deadline (for EDF)
+} t_heap_node;
+
+typedef struct s_heap {
+	t_heap_node nodes[2];
+	int			size;
+} t_heap;
+
 typedef struct s_dongle
 {
 	int				id;
 	int				is_taken;
 	long			cooldown_start;
 	pthread_mutex_t	mutex;
-	pthread_cond_t	cond_wait;
+	t_heap			wait_queue;
 }		t_dongle;
 
 typedef struct s_coder
@@ -38,7 +48,7 @@ typedef struct s_coder
 	long			last_complile_time;
 	t_dongle		*dongle1;
 	t_dongle		*dongle2;
-	void 			*data;
+	void			*data;
 }		t_coder;
 
 typedef struct s_simulation
@@ -59,6 +69,7 @@ typedef struct s_common_data {
 	t_coder			*coders;
 	pthread_mutex_t	log_mutex;
 	pthread_mutex_t	sched_mutex;
+	pthread_cond_t	sched_cond_wait;
 	pthread_mutex_t	state_mutex;
 	int				is_running;
 	struct timeval	start_time;
