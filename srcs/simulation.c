@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/27 20:32:38 by slenti           ###   ########.fr       */
+/*   Updated: 2026/08/10 09:44:57 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,15 @@ int	create_gen_locks(t_common_data *data){
 		pthread_mutex_destroy(&data->state_mutex);
 		return (FAILURE);
 	}
+	if (pthread_cond_init(&data->sched_cond_wait, NULL))
+	{
+		fprintf(stderr, "Error: Failed to create sched cond_wait\n");
+		pthread_mutex_destroy(&data->log_mutex);
+		pthread_mutex_destroy(&data->state_mutex);
+		pthread_mutex_destroy(&data->sched_mutex);
+		pthread_cond_destroy(&data->sched_cond_wait);
+		return (FAILURE);
+	}
 	return (SUCCESS);
 }
 
@@ -49,6 +58,8 @@ void	clean_locks(t_common_data *data)
 	pthread_mutex_destroy(&data->log_mutex);
 	pthread_mutex_destroy(&data->sched_mutex);
 	pthread_mutex_destroy(&data->state_mutex);
+	pthread_mutex_destroy(&data->sched_mutex);
+	pthread_cond_destroy(&data->sched_cond_wait);
 }
 
 void	simulate(t_simulation* settings)

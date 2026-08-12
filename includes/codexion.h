@@ -36,6 +36,7 @@ typedef struct s_dongle
 	int				is_taken;
 	long			cooldown_start;
 	pthread_mutex_t	mutex;
+	pthread_cond_t	cond_wait;
 	t_heap			wait_queue;
 }		t_dongle;
 
@@ -45,7 +46,7 @@ typedef struct s_coder
 	pthread_t		thread;
 	int				status;
 	int				compiles_left;
-	long			last_complile_time;
+	long			last_compile_time;
 	t_dongle		*dongle1;
 	t_dongle		*dongle2;
 	void			*data;
@@ -86,7 +87,7 @@ enum	Status
 {
 	AVAILABLE,
 	TAKEN,
-	COOLING,
+	COOLDOWN,
 	WAITING,
 	COMPILE,
 	DEBUG,
