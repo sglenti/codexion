@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/08/13 10:10:41 by slenti           ###   ########.fr       */
+/*   Updated: 2026/08/13 11:30:03 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	get_dongles(t_coder *coder)
 	coder->dongle2->is_taken = 1;
 }
 
-int	is_cooling_down(t_dongle *dongle, t_common_data *data)
+static int	is_cooling_down(t_dongle *dongle, t_common_data *data)
 {
 	if (!dongle->cooldown_start)
 		return (0);
@@ -51,12 +51,12 @@ int	is_cooling_down(t_dongle *dongle, t_common_data *data)
 			- dongle->cooldown_start < data->settings->dongle_cooldown);
 }
 
-int	is_my_turn(t_dongle *d, int my_id)
+static int	is_my_turn(t_dongle *d, int my_id)
 {
 	return (d->wait_queue.nodes[0].coder_id == my_id);
 }
 
-int	is_blocked(t_dongle *dongle, int coder_id, t_common_data *data)
+static int	is_blocked(t_dongle *dongle, int coder_id, t_common_data *data)
 {
 	if (dongle->is_taken)
 		return (TAKEN);
@@ -86,9 +86,13 @@ void	wait_for_dongles(t_coder *coder, t_common_data *data)
 
 	while (1)
 	{
+		if (!data->is_running)
+			break ;
 		status1 = is_blocked(coder->dongle1, coder->id, data);
 		status2 = is_blocked(coder->dongle2, coder->id, data);
-		printf("%d\n",status1);
+		now = get_elapsed_ms(data->start_time);
+		printf("%ld %d (%d)\n",now, status1, coder->dongle1->id);
+		printf("%ld %d (%d)\n",now, status2, coder->dongle2->id);
 		if (status1 == COOLDOWN || status2 == COOLDOWN)
 		{
 			now = get_elapsed_ms(data->start_time);

@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/08/12 21:22:46 by slenti           ###   ########.fr       */
+/*   Updated: 2026/08/13 11:48:57 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,9 @@ static void	*m_check(void *args)
 				// TRIGGER BURN OUT
 				write_log("%ld %d burned out\n", now, coder.id, 0, data->log_mutex);
 				data->is_running = 0;
+				pthread_mutex_lock(&data->sched_mutex);
+				pthread_cond_broadcast(&data->sched_cond_wait);
+				pthread_mutex_unlock(&data->sched_mutex);
 				break ;
 			}
 			i++;
@@ -61,4 +64,3 @@ void	start_monitor(t_common_data *data, pthread_t *monitor)
 		pthread_create(monitor, NULL, m_check, data);
 	return;
 }
-

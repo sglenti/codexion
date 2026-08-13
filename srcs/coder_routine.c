@@ -13,15 +13,17 @@
 #include "codexion.h"
 
 
-void	coder_compile(t_coder *coder, t_common_data *data, long now)
+static void	coder_compile(t_coder *coder, t_common_data *data, long now)
 {
+	if (!data->is_running)
+		return ;
 	write_log(COMPILE, now, coder->id, 0, data->log_mutex);
 	coder->last_compile_time = now;
 	coder->compiles_left -= 1;
 	usleep(data->settings->time_to_compile * 1000);
 }
 
-void	release_dongles(t_coder *coder, long now)
+static void	release_dongles(t_coder *coder, long now)
 {
 	t_common_data	*data;
 
@@ -38,7 +40,7 @@ void	release_dongles(t_coder *coder, long now)
 	pthread_mutex_unlock(&data->sched_mutex);
 }
 
-int	coder_debug(t_coder *coder, t_common_data *data, long now)
+static int	coder_debug(t_coder *coder, t_common_data *data, long now)
 {
 	if (!coder->compiles_left || !data->is_running)
 		return (1) ;
@@ -47,7 +49,7 @@ int	coder_debug(t_coder *coder, t_common_data *data, long now)
 	return (0);
 }
 
-int	coder_refact(t_coder *coder, t_common_data *data, long now)
+static int	coder_refact(t_coder *coder, t_common_data *data, long now)
 {
 	;
 	if (!data->is_running)
