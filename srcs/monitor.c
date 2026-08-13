@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/28 23:52:09 by slenti           ###   ########.fr       */
+/*   Updated: 2026/08/12 21:22:46 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,7 @@ static void	*m_check(void *args)
 		{
 			coder = data->coders[i];
 			// Check if the coder has exceeded their allowed time
-			//printf("%d: %ld - %ld\n",i + 1, now, now - coder.last_complile_time);
-			if (now - coder.last_complile_time > data->settings->time_to_burnout)
+			if (now - coder.last_compile_time > data->settings->time_to_burnout)
 			{
 				// TRIGGER BURN OUT
 				write_log("%ld %d burned out\n", now, coder.id, 0, data->log_mutex);

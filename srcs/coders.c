@@ -37,7 +37,7 @@ int	create_coders(t_common_data *data)
 	{
 		data->coders[i].id = i + 1; 
 		data->coders[i].status = WAITING;
-		data->coders[i].last_complile_time = 0;
+		data->coders[i].last_compile_time = 0;
 		data->coders[i].compiles_left = \
 			data->settings->number_of_compiles_required;
 		data->coders[i].dongle1 = &data->dongles[(n + (i - 1)) % n];

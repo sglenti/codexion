@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/08/10 09:44:57 by slenti           ###   ########.fr       */
+/*   Updated: 2026/08/12 21:16:03 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ void	simulate(t_simulation* settings)
 	data = (t_common_data *)malloc(sizeof(t_common_data));
 	if (!data)
 		return;
+	memset(data, 0, sizeof(t_common_data));
 	
 	// load settings:
 	data->settings = settings;
