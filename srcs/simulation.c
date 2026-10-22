@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/08/12 21:16:03 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/22 22:30:54 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ int	create_gen_locks(t_common_data *data){
 		pthread_mutex_destroy(&data->log_mutex);
 		pthread_mutex_destroy(&data->state_mutex);
 		pthread_mutex_destroy(&data->sched_mutex);
-		pthread_cond_destroy(&data->sched_cond_wait);
 		return (FAILURE);
 	}
 	return (SUCCESS);
@@ -58,7 +57,6 @@ void	clean_locks(t_common_data *data)
 	pthread_mutex_destroy(&data->log_mutex);
 	pthread_mutex_destroy(&data->sched_mutex);
 	pthread_mutex_destroy(&data->state_mutex);
-	pthread_mutex_destroy(&data->sched_mutex);
 	pthread_cond_destroy(&data->sched_cond_wait);
 }
 
