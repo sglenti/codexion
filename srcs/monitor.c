@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/26 17:21:19 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/26 17:55:00 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,6 @@ static void	*m_check(void *args)
 	t_coder			coder;
 
 	data = (t_common_data *)args;
-	pthread_mutex_lock(&data->state_mutex);
-	data->is_running = 1;
-	pthread_cond_broadcast(&data->sim_start_cond);
-	pthread_mutex_unlock(&data->state_mutex);
 	while (sim_is_running(data))
 	{
 		i = 0;

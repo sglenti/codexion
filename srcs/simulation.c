@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/26 17:32:42 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/26 17:55:52 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,8 +102,11 @@ void	simulate(t_simulation* settings)
 	start_coders(data);
 	// Start simulation:
 	gettimeofday(&data->start_time, NULL);
+	pthread_mutex_lock(&data->state_mutex);
+	data->is_running = 1;
+	pthread_cond_broadcast(&data->sim_start_cond);
+	pthread_mutex_unlock(&data->state_mutex);
 	// init monitor:
-	//monitor_id = NULL;
 	start_monitor(data, &monitor_id);
 
 	// wait for completion:
