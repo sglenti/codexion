@@ -71,6 +71,7 @@ typedef struct s_common_data {
 	pthread_mutex_t	log_mutex;
 	pthread_mutex_t	sched_mutex;
 	pthread_cond_t	sched_cond_wait;
+	pthread_cond_t	sim_start_cond;
 	pthread_mutex_t	state_mutex;
 	int				is_running;
 	struct timeval	start_time;

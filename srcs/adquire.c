@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/26 09:30:19 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/26 16:02:04 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,10 @@ void	get_dongles(t_coder *coder)
 {
 	pthread_mutex_lock(&coder->dongle1->mutex);
 	pthread_mutex_lock(&coder->dongle2->mutex);
-	
 	coder->dongle1->is_taken = 1;
 	coder->dongle2->is_taken = 1;
+	pthread_mutex_unlock(&coder->dongle2->mutex);
+	pthread_mutex_unlock(&coder->dongle1->mutex);
 }
 
 static int	is_cooling_down(t_dongle *dongle, t_common_data *data)
@@ -88,11 +89,15 @@ void	wait_for_dongles(t_coder *coder, t_common_data *data)
 	{
 		if (!sim_is_running(data))
 			break ;
+		pthread_mutex_lock(&coder->dongle1->mutex);
 		status1 = is_blocked(coder->dongle1, coder->id, data);
+		pthread_mutex_unlock(&coder->dongle1->mutex);
+		pthread_mutex_lock(&coder->dongle2->mutex);
 		status2 = is_blocked(coder->dongle2, coder->id, data);
+		pthread_mutex_unlock(&coder->dongle2->mutex);
 		now = get_elapsed_ms(data->start_time);
-		printf("%ld %d (%d)\n",now, status1, coder->dongle1->id);
-		printf("%ld %d (%d)\n",now, status2, coder->dongle2->id);
+		//printf("%ld %d (%d)\n",now, status1, coder->dongle1->id);
+		//printf("%ld %d (%d)\n",now, status2, coder->dongle2->id);
 		if (status1 == COOLDOWN || status2 == COOLDOWN)
 		{
 			now = get_elapsed_ms(data->start_time);
@@ -139,7 +144,7 @@ int	adquire_dongles(t_coder *coder, t_common_data *data)
 	write_log(DONGLE, now, coder->id, coder->dongle2->id, data->log_mutex);
 	return (0);
 }
-
+/*
 void	get_dongle_old(t_dongle *dongle, t_common_data *data)
 {
 	long			now;
@@ -194,4 +199,4 @@ int	adquire_dongles_old(t_coder *coder, t_common_data *data)
 	write_log(DONGLE, now, coder->id, coder->dongle2->id, data->log_mutex);
 	return (0);
 }
-
+*/

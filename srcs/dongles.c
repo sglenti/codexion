@@ -13,17 +13,14 @@
 #include "codexion.h"
 
 
-void	clear_dongles(t_common_data *data, int count)
+void	clear_dongles(t_common_data *data, int i)
 {
-	int i = 0;
-
 	if (!data->dongles)
 		return;
-	while (i < count)
+	while (i--)
 	{
 		pthread_mutex_destroy(&data->dongles[i].mutex);
 		pthread_cond_destroy(&data->dongles[i].cond_wait);
-		i++;
 	}
 	free(data->dongles);
 	data->dongles = NULL;

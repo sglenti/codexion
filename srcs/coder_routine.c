@@ -15,11 +15,13 @@
 
 static void	coder_compile(t_coder *coder, t_common_data *data, long now)
 {
-	if (!data->is_running)
+	if (!sim_is_running(data))
 		return ;
-	write_log(COMPILE, now, coder->id, 0, data->log_mutex);
+	pthread_mutex_lock(&data->state_mutex);
 	coder->last_compile_time = now;
 	coder->compiles_left -= 1;
+	pthread_mutex_unlock(&data->state_mutex);
+	write_log(COMPILE, now, coder->id, 0, data->log_mutex);
 	usleep(data->settings->time_to_compile * 1000);
 }
 
@@ -28,6 +30,8 @@ static void	release_dongles(t_coder *coder, long now)
 	t_common_data	*data;
 
 	data = (t_common_data *)coder->data;
+	pthread_mutex_lock(&coder->dongle1->mutex);
+	pthread_mutex_lock(&coder->dongle2->mutex);
 	coder->dongle1->cooldown_start = now;
 	coder->dongle2->cooldown_start = now;
 	coder->dongle1->is_taken = 0;
@@ -42,7 +46,7 @@ static void	release_dongles(t_coder *coder, long now)
 
 static int	coder_debug(t_coder *coder, t_common_data *data, long now)
 {
-	if (!coder->compiles_left || !data->is_running)
+	if (!coder->compiles_left || !sim_is_running(data))
 		return (1) ;
 	write_log(DEBBUG, now, coder->id, 0, data->log_mutex);
 	usleep(data->settings->time_to_debug * 1000);
@@ -51,8 +55,7 @@ static int	coder_debug(t_coder *coder, t_common_data *data, long now)
 
 static int	coder_refact(t_coder *coder, t_common_data *data, long now)
 {
-	;
-	if (!data->is_running)
+	if (!sim_is_running(data))
 		return (1) ;
 	write_log(REFACT, now, coder->id, 0, data->log_mutex);
 	usleep(data->settings->time_to_refactor * 1000);
@@ -66,6 +69,11 @@ void	*coder_routine(void *args)
 
 	coder = (t_coder *)args;
 	data = (t_common_data *)coder->data;
+	
+	pthread_mutex_lock(&data->state_mutex);
+	while(!data->is_running)
+		pthread_cond_wait(&data->sim_start_cond, &data->state_mutex);
+	pthread_mutex_unlock(&data->state_mutex);
 	while (1)
 	{
 		// Get dongles:

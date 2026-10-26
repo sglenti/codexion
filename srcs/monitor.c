@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/26 09:40:29 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/26 17:21:19 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,14 +37,14 @@ static void	burned_out(t_coder coder, t_common_data *data)
 {
 	long 			now;
 
-	now = get_elapsed_ms(data->start_time);
-	write_log("%ld %d burned out\n", now, coder.id, 0, data->log_mutex);
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 0;
 	pthread_mutex_unlock(&data->state_mutex);
 	pthread_mutex_lock(&data->sched_mutex);
 	pthread_cond_broadcast(&data->sched_cond_wait);
 	pthread_mutex_unlock(&data->sched_mutex);
+	now = get_elapsed_ms(data->start_time);
+	write_log("%ld %d burned out\n", now, coder.id, 0, data->log_mutex);
 }
 
 static void	*m_check(void *args)
@@ -56,6 +56,7 @@ static void	*m_check(void *args)
 	data = (t_common_data *)args;
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 1;
+	pthread_cond_broadcast(&data->sim_start_cond);
 	pthread_mutex_unlock(&data->state_mutex);
 	while (sim_is_running(data))
 	{

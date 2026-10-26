@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:02:12 by slenti            #+#    #+#             */
-/*   Updated: 2026/08/13 10:37:16 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/26 15:34:04 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,12 @@ void	heap_reg(t_coder *coder, t_dongle *dongle, int policy)
 
 	data = coder->data;
 	h = &dongle->wait_queue;
+	pthread_mutex_lock(&data->state_mutex);
 	if (policy == FIFO)
 		priority = get_elapsed_ms(data->start_time); // Arrival time
 	else
 		priority = coder->last_compile_time + data->settings->time_to_burnout;
+	pthread_mutex_unlock(&data->state_mutex);
 
 	h->nodes[h->size].coder_id = coder->id;
 	h->nodes[h->size].priority = priority;
