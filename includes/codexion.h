@@ -123,5 +123,6 @@ void	*coder_routine(void *args);
 int		adquire_dongles(t_coder *coder, t_common_data *data);
 void	heap_reg(t_coder *coder, t_dongle *dongle, int policy);
 void	heap_dereg(t_coder *coder, t_dongle *dongle);
+int		sim_is_running(t_common_data *data);
 
 #endif

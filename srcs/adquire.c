@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/08/13 11:30:03 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/26 09:30:19 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void	wait_for_dongles(t_coder *coder, t_common_data *data)
 
 	while (1)
 	{
-		if (!data->is_running)
+		if (!sim_is_running(data))
 			break ;
 		status1 = is_blocked(coder->dongle1, coder->id, data);
 		status2 = is_blocked(coder->dongle2, coder->id, data);

@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/24 22:14:32 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/26 09:40:29 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static void	*m_check(void *args)
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 1;
 	pthread_mutex_unlock(&data->state_mutex);
-	while (data->is_running)
+	while (sim_is_running(data))
 	{
 		i = 0;
 		while (i < data->settings->number_of_coders)

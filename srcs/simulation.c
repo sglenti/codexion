@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/22 22:30:54 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/26 09:41:16 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,16 @@ void	clean_locks(t_common_data *data)
 	pthread_mutex_destroy(&data->sched_mutex);
 	pthread_mutex_destroy(&data->state_mutex);
 	pthread_cond_destroy(&data->sched_cond_wait);
+}
+
+int	sim_is_running(t_common_data *data)
+{
+	int	is_running;
+
+	pthread_mutex_lock(&data->state_mutex);
+	is_running = data->is_running;
+	pthread_mutex_unlock(&data->state_mutex);
+	return is_running;
 }
 
 void	simulate(t_simulation* settings)

@@ -95,5 +95,7 @@ void wait_for_coders(t_common_data *data)
 			fprintf(stderr, "Error: Failed to join thread %d\n", i);
 		i++;
 	}
+	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 0;
+	pthread_mutex_unlock(&data->state_mutex);
 }

@@ -32,8 +32,8 @@ static void	release_dongles(t_coder *coder, long now)
 	coder->dongle2->cooldown_start = now;
 	coder->dongle1->is_taken = 0;
 	coder->dongle2->is_taken = 0;
-	pthread_mutex_unlock(&coder->dongle1->mutex);
 	pthread_mutex_unlock(&coder->dongle2->mutex);
+	pthread_mutex_unlock(&coder->dongle1->mutex);
 	// Notify others that the resource state changed
 	pthread_mutex_lock(&data->sched_mutex);
 	pthread_cond_broadcast(&data->sched_cond_wait);
