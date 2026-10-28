@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 00:10:52 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 00:48:33 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ static struct timespec get_abs_timeout(long timeout_ms)
 	return abs_timeout;
 }
 
-/*
 static void	get_dongles(t_coder *coder)
 {
 	pthread_mutex_lock(&coder->dongle1->mutex);
@@ -44,7 +43,6 @@ static void	get_dongles(t_coder *coder)
 	coder->dongle2->is_taken = 1;
 	pthread_mutex_unlock(&coder->dongle2->mutex);
 }
-*/
 
 static int	is_cooling_down(t_dongle *dongle, t_common_data *data)
 {
@@ -105,7 +103,6 @@ static void	wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data)
 			pthread_cond_wait(&d->cond_wait, &d->mutex);
 		else
 		{
-			d->is_taken = 1;
 			pthread_mutex_unlock(&d->mutex);
 			break ;
 		}
@@ -130,7 +127,7 @@ int	adquire_dongles(t_coder *coder, t_common_data *data)
 	if (!sim_is_running(data))
 		return (1) ;
 	// my turn, get dongles;
-	// get_dongles(coder);
+	get_dongles(coder);
 	
 	// log adquisitions:
 	now = get_elapsed_ms(data->start_time);
