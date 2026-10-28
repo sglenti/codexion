@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 00:48:33 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 16:52:43 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,11 @@ static struct timespec get_abs_timeout(long timeout_ms)
 static void	get_dongles(t_coder *coder)
 {
 	pthread_mutex_lock(&coder->dongle1->mutex);
-	coder->dongle1->is_taken = 1;
-	pthread_mutex_unlock(&coder->dongle1->mutex);
 	pthread_mutex_lock(&coder->dongle2->mutex);
+	coder->dongle1->is_taken = 1;
 	coder->dongle2->is_taken = 1;
 	pthread_mutex_unlock(&coder->dongle2->mutex);
+	pthread_mutex_unlock(&coder->dongle1->mutex);
 }
 
 static int	is_cooling_down(t_dongle *dongle, t_common_data *data)
@@ -56,7 +56,7 @@ static int	is_reserved(t_coder *c, t_dongle *d)
 {
 	if (d->wait_queue.size == 0)
 		return (0);
-	return (d->wait_queue.nodes[0].coder_id == c->id);
+	return (d->wait_queue.nodes[0].coder_id != c->id);
 }
 
 static int	is_blocked(t_coder *coder, t_dongle *dongle, t_common_data *data)
