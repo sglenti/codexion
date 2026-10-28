@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:52:26 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/24 11:52:49 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 17:23:59 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,4 +29,3 @@ int	print_error(char *msg)
 	fprintf(stderr, "%s\n", msg);
 	return (1);
 }
-

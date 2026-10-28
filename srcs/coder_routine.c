@@ -32,7 +32,6 @@ static void	release_dongles(t_coder *coder, long now)
 	coder->dongle1->is_taken = 0;
 	pthread_cond_broadcast(&coder->dongle1->cond_wait);
 	pthread_mutex_unlock(&coder->dongle1->mutex);
-
 	pthread_mutex_lock(&coder->dongle2->mutex);
 	coder->dongle2->cooldown_start = now;
 	coder->dongle2->is_taken = 0;
@@ -70,26 +69,18 @@ void	*coder_routine(void *args)
 
 	coder = (t_coder *)args;
 	data = (t_common_data *)coder->data;
-	
 	pthread_mutex_lock(&data->state_mutex);
 	while(!data->is_running)
 		pthread_cond_wait(&data->sim_start_cond, &data->state_mutex);
 	pthread_mutex_unlock(&data->state_mutex);
 	while (1)
 	{
-		// Get dongles:
 		if (adquire_dongles(coder, data))
 			break ;
-		
-		// compile:
 		coder_compile(coder, data, get_elapsed_ms(data->start_time));
 		release_dongles(coder, get_elapsed_ms(data->start_time));
-
-		// debug
 		if (coder_debug(coder, data, get_elapsed_ms(data->start_time)))
 			break ;
-
-		// refactor
 		if (coder_refact(coder, data, get_elapsed_ms(data->start_time)))
 			break ;
 	}

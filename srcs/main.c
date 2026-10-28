@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/19 13:25:44 by slenti            #+#    #+#             */
-/*   Updated: 2026/08/08 21:25:58 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 17:20:43 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ static int	show_usage(void)
 	return (0);
 }
 
+/*	Add keys to command line arguments if needed for parsing. */
 void	add_keys(char *args[16], char **argv, char *keys[8], int count)
 {
 	int	i;
@@ -52,13 +53,11 @@ int	main(int argc, char **argv)
 {
 	t_simulation	*settings;
 	char			*args[16];
-	
-	char			*keys[8] = {
+	static char		*keys[8] = {
 		"number_of_coders",  "time_to_burnout", "time_to_compile",
 		"time_to_debug", "time_to_refactor", "number_of_compiles_required",
 		"dongle_cooldown", "scheduler"
 	};
-	// if wrong args, show usge and exit
 	if (argc != 17 && argc != 9)
 		return (show_usage());
 	settings = (t_simulation *)malloc(sizeof(t_simulation));

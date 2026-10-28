@@ -45,7 +45,6 @@ typedef struct s_coder
 {
 	int				id;
 	pthread_t		thread;
-	//int				status;
 	int				compiles_left;
 	long			last_compile_time;
 	t_dongle		*dongle1;
@@ -122,5 +121,6 @@ int		adquire_dongles(t_coder *coder, t_common_data *data);
 void	heap_reg(t_coder *coder, t_dongle *dongle, int policy);
 void	heap_dereg(t_coder *coder, t_dongle *dongle);
 int		sim_is_running(t_common_data *data);
+int		wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data);
 
 #endif

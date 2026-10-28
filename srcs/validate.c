@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:46:22 by slenti            #+#    #+#             */
-/*   Updated: 2026/07/24 15:28:21 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 17:22:30 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,8 @@ static int	validate_arg(char** args, char* key)
 	{
 		if(!val_sched(*(args + 1)))
 		{
-			fprintf(stderr, "Error: Wrong value for %s, (%s)\n\n", *args, *(args + 1));
+			fprintf(stderr, "Error: Wrong value for %s, (%s)\n\n", \
+					*args, *(args + 1));
 			return (0);
 		}
 	}
@@ -78,7 +79,8 @@ static int	validate_arg(char** args, char* key)
 	{
 		if(!val_int(*(args + 1)))
 		{
-			fprintf(stderr, "Error: Wrong value for %s, (%s)\n\n", *args, *(args + 1));
+			fprintf(stderr, "Error: Wrong value for %s, (%s)\n\n", \
+					*args, *(args + 1));
 			return (0);
 		}
 	}
