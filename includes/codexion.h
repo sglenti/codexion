@@ -115,7 +115,7 @@ int		start_coders(t_common_data *data);
 void	wait_for_coders(t_common_data *data);
 int		create_dongles(t_common_data *data, t_simulation *settings);
 void	clear_dongles(t_common_data *data, int count);
-void	write_log(char *str, long time, int id, int d_id, pthread_mutex_t mutex);
+void	write_log(char *str, int id, int d_id, t_common_data *data);
 void	*coder_routine(void *args);
 int		adquire_dongles(t_coder *coder, t_common_data *data);
 void	heap_reg(t_coder *coder, t_dongle *dongle, int policy);

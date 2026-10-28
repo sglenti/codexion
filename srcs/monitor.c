@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 00:26:31 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 21:38:28 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,11 @@ static long time_since_comp(t_coder coder, t_common_data *data)
 
 static void	burned_out(t_coder coder, t_common_data *data)
 {
-	long	now;
 	int		i;
 
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 0;
 	pthread_mutex_unlock(&data->state_mutex);
-	now = get_elapsed_ms(data->start_time);
-	write_log("%ld %d burned out\n", now, coder.id, 0, data->log_mutex);
 	i = 0;
     while (i < data->settings->number_of_coders)
     {
@@ -51,6 +48,7 @@ static void	burned_out(t_coder coder, t_common_data *data)
         pthread_mutex_unlock(&data->dongles[i].mutex);
         i++;
     }
+	write_log(BURNED, coder.id, 0, data);
 }
 
 static void	*m_check(void *args)
@@ -65,7 +63,9 @@ static void	*m_check(void *args)
 		i = 0;
 		while (i < data->settings->number_of_coders)
 		{
+			pthread_mutex_lock(&data->state_mutex);
 			coder = data->coders[i];
+			pthread_mutex_unlock(&data->state_mutex);
 			if (time_since_comp(coder, data) > data->settings->time_to_burnout)
 			{
 				burned_out(coder, data);

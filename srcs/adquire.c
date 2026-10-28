@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 18:31:35 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 21:38:03 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ static void	get_dongles(t_coder *coder)
 
 int	adquire_dongles(t_coder *coder, t_common_data *data)
 {
-	long			now;
-
 	// request_dongles:
 	heap_reg(coder, coder->dongle1, data->settings->scheduler);
 	heap_reg(coder, coder->dongle2, data->settings->scheduler);
@@ -44,8 +42,7 @@ int	adquire_dongles(t_coder *coder, t_common_data *data)
 	get_dongles(coder);
 	
 	// log adquisitions:
-	now = get_elapsed_ms(data->start_time);
-	write_log(DONGLE, now, coder->id, coder->dongle1->id, data->log_mutex);
-	write_log(DONGLE, now, coder->id, coder->dongle2->id, data->log_mutex);
+	write_log(DONGLE, coder->id, coder->dongle1->id, data);
+	write_log(DONGLE, coder->id, coder->dongle2->id, data);
 	return (0);
 }

@@ -21,7 +21,7 @@ static void	coder_compile(t_coder *coder, t_common_data *data, long now)
 	coder->last_compile_time = now;
 	coder->compiles_left -= 1;
 	pthread_mutex_unlock(&data->state_mutex);
-	write_log(COMPILE, now, coder->id, 0, data->log_mutex);
+	write_log(COMPILE, coder->id, 0, data);
 	usleep(data->settings->time_to_compile * 1000);
 }
 
@@ -39,7 +39,7 @@ static void	release_dongles(t_coder *coder, long now)
 	pthread_mutex_unlock(&coder->dongle2->mutex);
 }
 
-static int	coder_debug(t_coder *coder, t_common_data *data, long now)
+static int	coder_debug(t_coder *coder, t_common_data *data)
 {
 	int	compiles_left;
 
@@ -48,16 +48,16 @@ static int	coder_debug(t_coder *coder, t_common_data *data, long now)
 	pthread_mutex_unlock(&data->state_mutex);
 	if (!compiles_left || !sim_is_running(data))
 		return (1) ;
-	write_log(DEBBUG, now, coder->id, 0, data->log_mutex);
+	write_log(DEBBUG, coder->id, 0, data);
 	usleep(data->settings->time_to_debug * 1000);
 	return (0);
 }
 
-static int	coder_refact(t_coder *coder, t_common_data *data, long now)
+static int	coder_refact(t_coder *coder, t_common_data *data)
 {
 	if (!sim_is_running(data))
 		return (1) ;
-	write_log(REFACT, now, coder->id, 0, data->log_mutex);
+	write_log(REFACT, coder->id, 0, data);
 	usleep(data->settings->time_to_refactor * 1000);
 	return (0) ;
 }
@@ -72,6 +72,7 @@ void	*coder_routine(void *args)
 	pthread_mutex_lock(&data->state_mutex);
 	while(!data->is_running)
 		pthread_cond_wait(&data->sim_start_cond, &data->state_mutex);
+	coder->last_compile_time = get_elapsed_ms(data->start_time);
 	pthread_mutex_unlock(&data->state_mutex);
 	while (1)
 	{
@@ -79,9 +80,9 @@ void	*coder_routine(void *args)
 			break ;
 		coder_compile(coder, data, get_elapsed_ms(data->start_time));
 		release_dongles(coder, get_elapsed_ms(data->start_time));
-		if (coder_debug(coder, data, get_elapsed_ms(data->start_time)))
+		if (coder_debug(coder, data))
 			break ;
-		if (coder_refact(coder, data, get_elapsed_ms(data->start_time)))
+		if (coder_refact(coder, data))
 			break ;
 	}
 	return NULL;
