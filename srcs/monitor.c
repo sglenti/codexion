@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/26 17:55:00 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 00:26:31 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,16 +35,22 @@ static long time_since_comp(t_coder coder, t_common_data *data)
 
 static void	burned_out(t_coder coder, t_common_data *data)
 {
-	long 			now;
+	long	now;
+	int		i;
 
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 0;
 	pthread_mutex_unlock(&data->state_mutex);
-	pthread_mutex_lock(&data->sched_mutex);
-	pthread_cond_broadcast(&data->sched_cond_wait);
-	pthread_mutex_unlock(&data->sched_mutex);
 	now = get_elapsed_ms(data->start_time);
 	write_log("%ld %d burned out\n", now, coder.id, 0, data->log_mutex);
+	i = 0;
+    while (i < data->settings->number_of_coders)
+    {
+        pthread_mutex_lock(&data->dongles[i].mutex);
+        pthread_cond_broadcast(&data->dongles[i].cond_wait);
+        pthread_mutex_unlock(&data->dongles[i].mutex);
+        i++;
+    }
 }
 
 static void	*m_check(void *args)
