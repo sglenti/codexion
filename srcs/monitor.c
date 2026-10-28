@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 21:38:28 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 22:26:00 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,9 @@ long	get_elapsed_ms(struct timeval start)
     return (seconds * 1000) + (microseconds / 1000);
 }
 
-static long time_since_comp(t_coder coder, t_common_data *data)
+static long time_since_comp(long last, t_common_data *data)
 {
-	long	elapsed;
-
-	pthread_mutex_lock(&data->state_mutex);
-	elapsed = get_elapsed_ms(data->start_time) - coder.last_compile_time;
-	pthread_mutex_unlock(&data->state_mutex);
-	return elapsed;
+	return (get_elapsed_ms(data->start_time) - last);
 }
 
 static void	burned_out(t_coder coder, t_common_data *data)
@@ -55,7 +50,7 @@ static void	*m_check(void *args)
 {
 	t_common_data	*data;
 	int				i;
-	t_coder			coder;
+	long			last;
 
 	data = (t_common_data *)args;
 	while (sim_is_running(data))
@@ -64,11 +59,11 @@ static void	*m_check(void *args)
 		while (i < data->settings->number_of_coders)
 		{
 			pthread_mutex_lock(&data->state_mutex);
-			coder = data->coders[i];
+			last = data->coders[i].last_compile_time;
 			pthread_mutex_unlock(&data->state_mutex);
-			if (time_since_comp(coder, data) > data->settings->time_to_burnout)
+			if (time_since_comp(last, data) > data->settings->time_to_burnout)
 			{
-				burned_out(coder, data);
+				burned_out(data->coders[i], data);
 				break ;
 			}
 			i++;
