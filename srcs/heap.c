@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:02:12 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/26 15:34:04 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/27 22:57:48 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ void	heap_reg(t_coder *coder, t_dongle *dongle, int policy)
 		priority = coder->last_compile_time + data->settings->time_to_burnout;
 	pthread_mutex_unlock(&data->state_mutex);
 
+	pthread_mutex_lock(&dongle->mutex);
 	h->nodes[h->size].coder_id = coder->id;
 	h->nodes[h->size].priority = priority;
 	h->size++;
@@ -43,6 +44,7 @@ void	heap_reg(t_coder *coder, t_dongle *dongle, int policy)
 	// Since max size is 2, just swap if parent > child (Min-Heap)
 	if (h->size == 2 && h->nodes[0].priority > h->nodes[1].priority)
 		swap_nodes(&h->nodes[0], &h->nodes[1]);
+	pthread_mutex_unlock(&dongle->mutex);
 }
 
 // dereg: Remove the coder when they successfully get the resource
@@ -52,6 +54,7 @@ void	heap_dereg(t_coder *coder, t_dongle *dongle)
 	int i = 0;
 
 	// Find and remove (since size is max 2, simple loop is fine)
+	pthread_mutex_lock(&dongle->mutex);
 	while (i < h->size)
 	{
 		if (h->nodes[i].coder_id == coder->id)
@@ -59,8 +62,10 @@ void	heap_dereg(t_coder *coder, t_dongle *dongle)
 			// Shift elements if necessary
 			h->nodes[i] = h->nodes[h->size - 1];
 			h->size--;
+			pthread_mutex_unlock(&dongle->mutex);
 			return;
 		}
 		i++;
 	}
+	pthread_mutex_unlock(&dongle->mutex);
 }

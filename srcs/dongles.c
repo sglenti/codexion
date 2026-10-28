@@ -19,8 +19,9 @@ void	clear_dongles(t_common_data *data, int i)
 		return;
 	while (i--)
 	{
-		pthread_mutex_destroy(&data->dongles[i].mutex);
+		pthread_mutex_destroy(&data->dongles[i].queue_mutex);
 		pthread_cond_destroy(&data->dongles[i].cond_wait);
+		pthread_mutex_destroy(&data->dongles[i].mutex);
 	}
 	free(data->dongles);
 	data->dongles = NULL;
@@ -61,7 +62,13 @@ int	create_dongles(t_common_data *data, t_simulation *settings)
 			clear_dongles(data, i);
 			return (FAILURE);
 		}
-		// add HEAP later!!
+		if (pthread_mutex_init(&data->dongles[i].queue_mutex, NULL))
+		{
+			pthread_mutex_destroy(&data->dongles[i].mutex);
+			pthread_cond_destroy(&data->dongles[i].cond_wait);
+			clear_dongles(data, i);
+			return (FAILURE);
+		}
 		i++;
 	}
 	return (SUCCESS);

@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/26 16:02:04 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/28 00:10:52 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,17 @@ static struct timespec get_abs_timeout(long timeout_ms)
 	return abs_timeout;
 }
 
-void	get_dongles(t_coder *coder)
+/*
+static void	get_dongles(t_coder *coder)
 {
 	pthread_mutex_lock(&coder->dongle1->mutex);
-	pthread_mutex_lock(&coder->dongle2->mutex);
 	coder->dongle1->is_taken = 1;
+	pthread_mutex_unlock(&coder->dongle1->mutex);
+	pthread_mutex_lock(&coder->dongle2->mutex);
 	coder->dongle2->is_taken = 1;
 	pthread_mutex_unlock(&coder->dongle2->mutex);
-	pthread_mutex_unlock(&coder->dongle1->mutex);
 }
+*/
 
 static int	is_cooling_down(t_dongle *dongle, t_common_data *data)
 {
@@ -52,68 +54,61 @@ static int	is_cooling_down(t_dongle *dongle, t_common_data *data)
 			- dongle->cooldown_start < data->settings->dongle_cooldown);
 }
 
-static int	is_my_turn(t_dongle *d, int my_id)
+static int	is_reserved(t_coder *c, t_dongle *d)
 {
-	return (d->wait_queue.nodes[0].coder_id == my_id);
+	if (d->wait_queue.size == 0)
+		return (0);
+	return (d->wait_queue.nodes[0].coder_id == c->id);
 }
 
-static int	is_blocked(t_dongle *dongle, int coder_id, t_common_data *data)
+static int	is_blocked(t_coder *coder, t_dongle *dongle, t_common_data *data)
 {
 	if (dongle->is_taken)
 		return (TAKEN);
 	else if (is_cooling_down(dongle, data))
 		return (COOLDOWN);
-	else if (!is_my_turn(dongle, coder_id))
-		return (TAKEN);
-	else 
+	else if (is_reserved(coder, dongle))
+		return (RESERVED);
+	else
 		return (AVAILABLE);
 }
 
-//int is_blocked_alt(t_dongle *d, int my_id) {
-	// Blocked if:
-	// 1. Hardware mutex is already taken
-	// 2. I am NOT the top of the heap
-	// 3. Cooldown is still active
-//	  return (d->is_taken || (d->wait_queue.nodes[0].coder_id != my_id) || is_cooldown(d));
-//}
-
-void	wait_for_dongles(t_coder *coder, t_common_data *data)
+static void	wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data)
 {
-	int				status1;
-	int				status2;
+	int				status;
 	struct timespec	ts;
 	long			now;
 	long			wait_remaining;
 
+	pthread_mutex_lock(&d->mutex);
 	while (1)
 	{
 		if (!sim_is_running(data))
+		{
+			pthread_mutex_unlock(&d->mutex);
 			break ;
-		pthread_mutex_lock(&coder->dongle1->mutex);
-		status1 = is_blocked(coder->dongle1, coder->id, data);
-		pthread_mutex_unlock(&coder->dongle1->mutex);
-		pthread_mutex_lock(&coder->dongle2->mutex);
-		status2 = is_blocked(coder->dongle2, coder->id, data);
-		pthread_mutex_unlock(&coder->dongle2->mutex);
-		now = get_elapsed_ms(data->start_time);
+		}
+
+		status = is_blocked(coder, d, data);
+		//now = get_elapsed_ms(data->start_time);
 		//printf("%ld %d (%d)\n",now, status1, coder->dongle1->id);
 		//printf("%ld %d (%d)\n",now, status2, coder->dongle2->id);
-		if (status1 == COOLDOWN || status2 == COOLDOWN)
+		if (status == COOLDOWN)
 		{
 			now = get_elapsed_ms(data->start_time);
-			if (status1 == COOLDOWN)
-				wait_remaining = data->settings->dongle_cooldown \
-							 - (now - coder->dongle1->cooldown_start);
-			else
-				wait_remaining = data->settings->dongle_cooldown \
-							 - (now - coder->dongle2->cooldown_start);
+			wait_remaining = data->settings->dongle_cooldown \
+								- (now - d->cooldown_start);
 			ts = get_abs_timeout(wait_remaining);
-			pthread_cond_timedwait(&data->sched_cond_wait, &data->sched_mutex, &ts);
+			pthread_cond_timedwait(&d->cond_wait, &d->mutex, &ts);
 		}
-		else if (status1 == TAKEN || status2 == TAKEN)
-			pthread_cond_wait(&data->sched_cond_wait, &data->sched_mutex);
+		else if (status == TAKEN || status == RESERVED)
+			pthread_cond_wait(&d->cond_wait, &d->mutex);
 		else
+		{
+			d->is_taken = 1;
+			pthread_mutex_unlock(&d->mutex);
 			break ;
+		}
 	}
 }
 
@@ -122,24 +117,23 @@ int	adquire_dongles(t_coder *coder, t_common_data *data)
 	long			now;
 
 	// request_dongles:
-	pthread_mutex_lock(&data->sched_mutex);
 	heap_reg(coder, coder->dongle1, data->settings->scheduler);
 	heap_reg(coder, coder->dongle2, data->settings->scheduler);
 
 	// wait for availability:
-	wait_for_dongles(coder, data);
+	wait_for_dongle(coder, coder->dongle1, data);
+	wait_for_dongle(coder, coder->dongle2, data);
 	heap_dereg(coder, coder->dongle1);
 	heap_dereg(coder, coder->dongle2);
-	pthread_mutex_unlock(&data->sched_mutex);
 	
 	// if sim ended, release mutexes and exit:
-	if (!data->is_running)
+	if (!sim_is_running(data))
 		return (1) ;
 	// my turn, get dongles;
-	get_dongles(coder);
-	now = get_elapsed_ms(data->start_time);
+	// get_dongles(coder);
 	
 	// log adquisitions:
+	now = get_elapsed_ms(data->start_time);
 	write_log(DONGLE, now, coder->id, coder->dongle1->id, data->log_mutex);
 	write_log(DONGLE, now, coder->id, coder->dongle2->id, data->log_mutex);
 	return (0);

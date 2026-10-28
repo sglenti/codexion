@@ -27,26 +27,27 @@ static void	coder_compile(t_coder *coder, t_common_data *data, long now)
 
 static void	release_dongles(t_coder *coder, long now)
 {
-	t_common_data	*data;
-
-	data = (t_common_data *)coder->data;
 	pthread_mutex_lock(&coder->dongle1->mutex);
-	pthread_mutex_lock(&coder->dongle2->mutex);
 	coder->dongle1->cooldown_start = now;
-	coder->dongle2->cooldown_start = now;
 	coder->dongle1->is_taken = 0;
-	coder->dongle2->is_taken = 0;
-	pthread_mutex_unlock(&coder->dongle2->mutex);
+	pthread_cond_broadcast(&coder->dongle1->cond_wait);
 	pthread_mutex_unlock(&coder->dongle1->mutex);
-	// Notify others that the resource state changed
-	pthread_mutex_lock(&data->sched_mutex);
-	pthread_cond_broadcast(&data->sched_cond_wait);
-	pthread_mutex_unlock(&data->sched_mutex);
+
+	pthread_mutex_lock(&coder->dongle2->mutex);
+	coder->dongle2->cooldown_start = now;
+	coder->dongle2->is_taken = 0;
+	pthread_cond_broadcast(&coder->dongle2->cond_wait);
+	pthread_mutex_unlock(&coder->dongle2->mutex);
 }
 
 static int	coder_debug(t_coder *coder, t_common_data *data, long now)
 {
-	if (!coder->compiles_left || !sim_is_running(data))
+	int	compiles_left;
+
+	pthread_mutex_lock(&data->state_mutex);
+	compiles_left = coder->compiles_left;
+	pthread_mutex_unlock(&data->state_mutex);
+	if (!compiles_left || !sim_is_running(data))
 		return (1) ;
 	write_log(DEBBUG, now, coder->id, 0, data->log_mutex);
 	usleep(data->settings->time_to_debug * 1000);

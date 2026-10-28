@@ -22,7 +22,7 @@
 
 typedef struct s_heap_node {
 	int		coder_id;
-	long	priority; // arrival_time (for FIFO) or deadline (for EDF)
+	long	priority;
 } t_heap_node;
 
 typedef struct s_heap {
@@ -38,13 +38,14 @@ typedef struct s_dongle
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond_wait;
 	t_heap			wait_queue;
+	pthread_mutex_t	queue_mutex;
 }		t_dongle;
 
 typedef struct s_coder
 {
 	int				id;
 	pthread_t		thread;
-	int				status;
+	//int				status;
 	int				compiles_left;
 	long			last_compile_time;
 	t_dongle		*dongle1;
@@ -70,9 +71,9 @@ typedef struct s_common_data {
 	t_coder			*coders;
 	pthread_mutex_t	log_mutex;
 	pthread_mutex_t	sched_mutex;
+	pthread_mutex_t	state_mutex;
 	pthread_cond_t	sched_cond_wait;
 	pthread_cond_t	sim_start_cond;
-	pthread_mutex_t	state_mutex;
 	int				is_running;
 	struct timeval	start_time;
 } t_common_data;
@@ -89,11 +90,7 @@ enum	Status
 	AVAILABLE,
 	TAKEN,
 	COOLDOWN,
-	WAITING,
-	COMPILE,
-	DEBUG,
-	REFACTOR,
-	BURNT_OUT
+	RESERVED
 };
 
 enum	Result
