@@ -1,51 +1,34 @@
 /* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   simulation.c                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/24 11:55:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 17:26:05 by slenti           ###   ########.fr       */
-/*                                                                            */
+/*																			  */
+/*														  :::	   ::::::::   */
+/*	 simulation.c										:+:		 :+:	:+:   */
+/*													  +:+ +:+		  +:+	  */
+/*	 By: slenti <slenti@student.42porto.com>		+#+  +:+	   +#+		  */
+/*												  +#+#+#+#+#+	+#+			  */
+/*	 Created: 2026/07/24 11:55:45 by slenti			   #+#	  #+#			  */
+/*	 Updated: 2026/10/29 19:48:57 by slenti			  ###	########.fr		  */
+/*																			  */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
 
-int	create_gen_locks(t_common_data *data){
+int create_gen_locks(t_common_data *data){
 	if (pthread_mutex_init(&data->state_mutex, NULL))
 	{
-		fprintf(stderr, "Error: Failed to create log mutex\n");
-		return (FAILURE);
-	}
-	if (pthread_mutex_init(&data->sched_mutex, NULL))
-	{
 		fprintf(stderr, "Error: Failed to create state mutex\n");
-		pthread_mutex_destroy(&data->state_mutex);
 		return (FAILURE);
 	}
 	if (pthread_mutex_init(&data->log_mutex, NULL))
 	{
 		fprintf(stderr, "Error: Failed to create log mutex\n");
-		pthread_mutex_destroy(&data->sched_mutex);
-		pthread_mutex_destroy(&data->state_mutex);
-		return (FAILURE);
-	}
-	if (pthread_cond_init(&data->sched_cond_wait, NULL))
-	{
-		fprintf(stderr, "Error: Failed to create sched cond_wait\n");
-		pthread_mutex_destroy(&data->log_mutex);
-		pthread_mutex_destroy(&data->sched_mutex);
 		pthread_mutex_destroy(&data->state_mutex);
 		return (FAILURE);
 	}
 	if (pthread_cond_init(&data->sim_start_cond, NULL))
 	{
-		fprintf(stderr, "Error: Failed to create sched cond_wait\n");
-		pthread_cond_destroy(&data->sched_cond_wait);
+		fprintf(stderr, "Error: Failed to create sim cond_wait\n");
 		pthread_mutex_destroy(&data->log_mutex);
-		pthread_mutex_destroy(&data->sched_mutex);
 		pthread_mutex_destroy(&data->state_mutex);
 		return (FAILURE);
 	}
@@ -64,15 +47,13 @@ void	clean_all(t_common_data **data, int count)
 void	clean_locks(t_common_data *data)
 {
 	pthread_cond_destroy(&data->sim_start_cond);
-	pthread_cond_destroy(&data->sched_cond_wait);
 	pthread_mutex_destroy(&data->log_mutex);
-	pthread_mutex_destroy(&data->sched_mutex);
 	pthread_mutex_destroy(&data->state_mutex);
 }
 
-int	sim_is_running(t_common_data *data)
+int sim_is_running(t_common_data *data)
 {
-	int	is_running;
+	int is_running;
 
 	pthread_mutex_lock(&data->state_mutex);
 	is_running = data->is_running;

@@ -13,7 +13,7 @@
 #include "codexion.h"
 
 
-void	switch_dongles(t_coder *coder)
+static void	switch_dongles(t_coder *coder)
 {
 	t_dongle	*tmp;
 
@@ -22,13 +22,21 @@ void	switch_dongles(t_coder *coder)
 	coder->dongle2 = tmp;	
 }
 
+void single_coder(t_simulation *settings)
+{
+	printf("0 1 has taken a dongle\n");
+	usleep(settings->time_to_burnout * 1000);
+	printf("%d 1 burned out\n", settings->time_to_burnout);
+}
+
 int	create_coders(t_common_data *data)
 {
 	int	i;
 	int n;
 
 	n = data->settings->number_of_coders;
-	data->coders = (t_coder *)malloc(sizeof(t_coder) * n);
+	if (n > 1)
+		data->coders = (t_coder *)malloc(sizeof(t_coder) * n);
 	if (!data->coders)
 		return (FAILURE);
 	memset(data->coders, 0, sizeof(t_coder) * n);

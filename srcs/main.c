@@ -1,13 +1,13 @@
 /* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/19 13:25:44 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 17:20:43 by slenti           ###   ########.fr       */
-/*                                                                            */
+/*																			  */
+/*														  :::	   ::::::::   */
+/*	 main.c												:+:		 :+:	:+:   */
+/*													  +:+ +:+		  +:+	  */
+/*	 By: slenti <slenti@student.42porto.com>		+#+  +:+	   +#+		  */
+/*												  +#+#+#+#+#+	+#+			  */
+/*	 Created: 2026/07/19 13:25:44 by slenti			   #+#	  #+#			  */
+/*	 Updated: 2026/10/29 19:54:58 by slenti			  ###	########.fr		  */
+/*																			  */
 /* ************************************************************************** */
 
 #include "codexion.h"
@@ -67,7 +67,10 @@ int	main(int argc, char **argv)
 	parse_args(&settings, 16, args);
 	if (!settings)
 		return (show_usage());
-	simulate(settings);
+	if (settings->number_of_coders == 1)
+		single_coder(settings);
+	else
+		simulate(settings);
 	cleanup((void **)&settings);
 	return (0);
 }

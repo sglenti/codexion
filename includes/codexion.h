@@ -38,7 +38,6 @@ typedef struct s_dongle
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond_wait;
 	t_heap			wait_queue;
-	pthread_mutex_t	queue_mutex;
 }		t_dongle;
 
 typedef struct s_coder
@@ -69,9 +68,7 @@ typedef struct s_common_data {
 	t_dongle		*dongles;
 	t_coder			*coders;
 	pthread_mutex_t	log_mutex;
-	pthread_mutex_t	sched_mutex;
 	pthread_mutex_t	state_mutex;
-	pthread_cond_t	sched_cond_wait;
 	pthread_cond_t	sim_start_cond;
 	int				is_running;
 	struct timeval	start_time;
@@ -122,5 +119,6 @@ void	heap_reg(t_coder *coder, t_dongle *dongle, int policy);
 void	heap_dereg(t_coder *coder, t_dongle *dongle);
 int		sim_is_running(t_common_data *data);
 int		wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data);
+void	single_coder(t_simulation *settings);
 
 #endif
