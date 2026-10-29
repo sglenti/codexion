@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 17:16:45 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 22:26:00 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/29 17:56:43 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ static void	*m_check(void *args)
 			pthread_mutex_lock(&data->state_mutex);
 			last = data->coders[i].last_compile_time;
 			pthread_mutex_unlock(&data->state_mutex);
-			if (time_since_comp(last, data) > data->settings->time_to_burnout)
+			if (last && time_since_comp(last, data) > data->settings->time_to_burnout)
 			{
 				burned_out(data->coders[i], data);
 				break ;
