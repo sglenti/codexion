@@ -12,7 +12,6 @@
 
 #include "codexion.h"
 
-
 static void	coder_compile(t_coder *coder, t_common_data *data, long now)
 {
 	if (!sim_is_running(data))
@@ -47,7 +46,7 @@ static int	coder_debug(t_coder *coder, t_common_data *data)
 	compiles_left = coder->compiles_left;
 	pthread_mutex_unlock(&data->state_mutex);
 	if (!compiles_left || !sim_is_running(data))
-		return (1) ;
+		return (1);
 	write_log(DEBBUG, coder->id, 0, data);
 	usleep(data->settings->time_to_debug * 1000);
 	return (0);
@@ -56,10 +55,10 @@ static int	coder_debug(t_coder *coder, t_common_data *data)
 static int	coder_refact(t_coder *coder, t_common_data *data)
 {
 	if (!sim_is_running(data))
-		return (1) ;
+		return (1);
 	write_log(REFACT, coder->id, 0, data);
 	usleep(data->settings->time_to_refactor * 1000);
-	return (0) ;
+	return (0);
 }
 
 void	*coder_routine(void *args)
@@ -70,7 +69,7 @@ void	*coder_routine(void *args)
 	coder = (t_coder *)args;
 	data = (t_common_data *)coder->data;
 	pthread_mutex_lock(&data->state_mutex);
-	while(!data->is_running)
+	while (!data->is_running)
 		pthread_cond_wait(&data->sim_start_cond, &data->state_mutex);
 	coder->last_compile_time = get_elapsed_ms(data->start_time);
 	pthread_mutex_unlock(&data->state_mutex);
@@ -85,5 +84,5 @@ void	*coder_routine(void *args)
 		if (coder_refact(coder, data))
 			break ;
 	}
-	return NULL;
+	return (NULL);
 }

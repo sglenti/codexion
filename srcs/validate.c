@@ -1,21 +1,20 @@
 /* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   validate.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/24 11:46:22 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 17:22:30 by slenti           ###   ########.fr       */
-/*                                                                            */
+/*																			  */
+/*														  :::	   ::::::::   */
+/*	 validate.c											:+:		 :+:	:+:   */
+/*													  +:+ +:+		  +:+	  */
+/*	 By: slenti <slenti@student.42porto.com>		+#+  +:+	   +#+		  */
+/*												  +#+#+#+#+#+	+#+			  */
+/*	 Created: 2026/07/24 11:46:22 by slenti			   #+#	  #+#			  */
+/*	 Updated: 2026/10/28 17:22:30 by slenti			  ###	########.fr		  */
+/*																			  */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-
 /* Trim argument, compare to key and validate value.
  * Returns 0 for wrong vaules, non-zero if valid. */
-static int	val_key(char* arg, char* key)
+static int	val_key(char *arg, char *key)
 {
 	if ((strlen(arg) - strlen(key)) == 2 && arg[0] == '-' && arg[1] == '-')
 		arg += 2;
@@ -24,15 +23,15 @@ static int	val_key(char* arg, char* key)
 
 /* Check the argument for valid positive integers only.
  * Returns 1 for valid, 0 for wrong vaules. */
-static int val_int(char *num_str)
+static int	val_int(char *num_str)
 {
-	int valid;
+	int	valid;
 
 	if (!num_str || strlen(num_str) > 10)
 		return (0);
 	valid = 0;
-	while(*num_str)
-	{	
+	while (*num_str)
+	{
 		if (*num_str < '0' || *num_str > '9')
 			return (0);
 		if (*num_str > '0')
@@ -44,9 +43,9 @@ static int val_int(char *num_str)
 
 /* Check for valid type of scheduler.
  * Returns the appropriate Sched constant. */
-static int	val_sched(char* str)
+static int	val_sched(char *str)
 {
-	int len;
+	int	len;
 
 	len = strlen(str);
 	while (len--)
@@ -62,40 +61,37 @@ static int	val_sched(char* str)
 
 /*	Check a key: value pair argument for validity.
  *	Returns 0 on fail, 1 for valid values. Prints message on error. */
-static int	validate_arg(char** args, char* key)
+static int	validate_arg(char **args, char *key)
 {
 	if (!val_key(*args, key))
 		return (0);
 	if (!strcmp(key, "scheduler"))
 	{
-		if(!val_sched(*(args + 1)))
+		if (!val_sched(*(args + 1)))
 		{
 			fprintf(stderr, "Error: Wrong value for %s, (%s)\n\n", \
-					*args, *(args + 1));
+*args, *(args + 1));
 			return (0);
 		}
 	}
 	else
 	{
-		if(!val_int(*(args + 1)))
+		if (!val_int(*(args + 1)))
 		{
 			fprintf(stderr, "Error: Wrong value for %s, (%s)\n\n", \
-					*args, *(args + 1));
+*args, *(args + 1));
 			return (0);
 		}
 	}
 	return (1);
 }
 
-/* 		Parse arguments and load them into simulation struct.
+/*		Parse arguments and load them into simulation struct.
  * 
- * 		On success, loads the arguments in the simulation struct passed as
- * 		argument. On fail, clears the struct and assign it to NULL. */
-void	parse_args(t_simulation** simulation_ptr, int args_count, char** args)
+ *		On success, loads the arguments in the simulation struct passed as
+ *		argument. On fail, clears the struct and assign it to NULL. */
+void	parse_args(t_simulation *simulation, int args_count, char **args)
 {
-	t_simulation *simulation;
-
-	simulation = *simulation_ptr;
 	while (args_count)
 	{
 		if (validate_arg(args, "number_of_coders"))
@@ -115,8 +111,8 @@ void	parse_args(t_simulation** simulation_ptr, int args_count, char** args)
 		else if (validate_arg(args, "scheduler"))
 			simulation->scheduler = val_sched(*(args + 1));
 		else
-			return (cleanup((void **)simulation_ptr));
-		args +=2;
+			return (cleanup((void *)simulation));
+		args += 2;
 		args_count -= 2;
 	}
 }

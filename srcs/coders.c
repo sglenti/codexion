@@ -12,17 +12,16 @@
 
 #include "codexion.h"
 
-
 static void	switch_dongles(t_coder *coder)
 {
 	t_dongle	*tmp;
 
 	tmp = coder->dongle1;
 	coder->dongle1 = coder->dongle2;
-	coder->dongle2 = tmp;	
+	coder->dongle2 = tmp;
 }
 
-void single_coder(t_simulation *settings)
+void	single_coder(t_simulation *settings)
 {
 	printf("0 1 has taken a dongle\n");
 	usleep(settings->time_to_burnout * 1000);
@@ -32,7 +31,7 @@ void single_coder(t_simulation *settings)
 int	create_coders(t_common_data *data)
 {
 	int	i;
-	int n;
+	int	n;
 
 	n = data->settings->number_of_coders;
 	if (n > 1)
@@ -43,9 +42,9 @@ int	create_coders(t_common_data *data)
 	i = 0;
 	while (i < n)
 	{
-		data->coders[i].id = i + 1; 
+		data->coders[i].id = i + 1;
 		data->coders[i].compiles_left = \
-			data->settings->number_of_compiles_required;
+data->settings->number_of_compiles_required;
 		data->coders[i].dongle1 = &data->dongles[(n + (i - 1)) % n];
 		data->coders[i].dongle2 = &data->dongles[i];
 		data->coders[i].data = data;
@@ -55,9 +54,10 @@ int	create_coders(t_common_data *data)
 	return (SUCCESS);
 }
 
-int start_coders(t_common_data *data)
+int	start_coders(t_common_data *data)
 {
 	int		i;
+	int		j;
 	t_coder	*coders;
 
 	coders = data->coders;
@@ -72,9 +72,8 @@ int start_coders(t_common_data *data)
 			data->is_running = false; 
 			pthread_mutex_unlock(&data->state_mutex);
 			*/
-
+			j = 0;
 			// 2. Join the ones that actually started
-			int j = 0;
 			while (j < i)
 			{
 				pthread_join(data->coders[j].thread, NULL);
@@ -88,7 +87,7 @@ int start_coders(t_common_data *data)
 	return (SUCCESS);
 }
 
-void wait_for_coders(t_common_data *data)
+void	wait_for_coders(t_common_data *data)
 {
 	int		i;
 	t_coder	*coders;

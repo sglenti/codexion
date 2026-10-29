@@ -6,12 +6,11 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/24 11:52:26 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 17:23:59 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/29 20:17:39 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-
 
 /* Free and cleanup basic resources */
 void	cleanup(void **ptr)

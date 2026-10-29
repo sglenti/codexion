@@ -12,11 +12,10 @@
 
 #include "codexion.h"
 
-
 void	clear_dongles(t_common_data *data, int i)
 {
 	if (!data->dongles)
-		return;
+		return ;
 	while (i--)
 	{
 		pthread_cond_destroy(&data->dongles[i].cond_wait);
@@ -31,7 +30,7 @@ int	create_dongles(t_common_data *data, t_simulation *settings)
 	int	i;
 
 	data->dongles = \
-		(t_dongle *)malloc(sizeof(t_dongle) * settings->number_of_coders);
+(t_dongle *)malloc(sizeof(t_dongle) * settings->number_of_coders);
 	if (!data->dongles)
 		return (FAILURE);
 	memset(data->dongles, 0, sizeof(t_dongle) * settings->number_of_coders);
@@ -47,7 +46,7 @@ int	create_dongles(t_common_data *data, t_simulation *settings)
 			return (FAILURE);
 		}
 */
-		data->dongles[i].id = i + 1; 
+		data->dongles[i].id = i + 1;
 		data->dongles[i].is_taken = 0;
 		data->dongles[i].cooldown_start = 0;
 		if (pthread_mutex_init(&data->dongles[i].mutex, NULL))

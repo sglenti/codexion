@@ -20,15 +20,17 @@
 # include <stdio.h>
 # include <string.h>
 
-typedef struct s_heap_node {
+typedef struct s_heap_node
+{
 	int		coder_id;
 	long	priority;
-} t_heap_node;
+}	t_heap_node;
 
-typedef struct s_heap {
-	t_heap_node nodes[2];
+typedef struct s_heap
+{
+	t_heap_node	nodes[2];
 	int			size;
-} t_heap;
+}	t_heap;
 
 typedef struct s_dongle
 {
@@ -63,7 +65,8 @@ typedef struct s_simulation
 	int	scheduler;
 }		t_simulation;
 
-typedef struct s_common_data {
+typedef struct s_common_data
+{
 	t_simulation	*settings;
 	t_dongle		*dongles;
 	t_coder			*coders;
@@ -72,16 +75,16 @@ typedef struct s_common_data {
 	pthread_cond_t	sim_start_cond;
 	int				is_running;
 	struct timeval	start_time;
-} t_common_data;
+}	t_common_data;
 
-enum	Sched
+enum	e_Sched
 {
 	WRONG,
 	FIFO,
 	EDF
 };
 
-enum	Status
+enum	e_Status
 {
 	AVAILABLE,
 	TAKEN,
@@ -89,22 +92,22 @@ enum	Status
 	RESERVED
 };
 
-enum	Result
+enum	e_Result
 {
 	SUCCESS,
 	FAILURE
 };
 
-#define DONGLE "%ld %d has taken a dongle(%d)\n"
-#define COMPILE "%ld %d is compiling\n"
-#define DEBBUG "%ld %d is debugging\n"
-#define REFACT "%ld %d is refactoring\n"
-#define BURNED "%ld %d burned out\n"
+# define DONGLE "%ld %d has taken a dongle(%d)\n"
+# define COMPILE "%ld %d is compiling\n"
+# define DEBBUG "%ld %d is debugging\n"
+# define REFACT "%ld %d is refactoring\n"
+# define BURNED "%ld %d burned out\n"
 
 void	cleanup(void **ptr);
 int		print_error(char *msg);
-void	parse_args(t_simulation** simulation_ptr, int args_count, char** args);
-void	simulate(t_simulation* settings);
+void	parse_args(t_simulation *simulation_ptr, int args_count, char **args);
+void	simulate(t_simulation *settings);
 void	start_monitor(t_common_data *data, pthread_t *monitor);
 long	get_elapsed_ms(struct timeval start);
 int		create_coders(t_common_data *data);
