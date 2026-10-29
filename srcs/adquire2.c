@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/28 18:32:15 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/29 13:04:58 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,11 @@ int	wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data)
 	long			now;
 	long			wait_remaining;
 
-	pthread_mutex_lock(&d->mutex);
 	while (1)
 	{
 		if (!sim_is_running(data))
-			return (pthread_mutex_unlock(&d->mutex));
+			return (0);
+	    pthread_mutex_lock(&d->mutex);
 		status = is_blocked(coder, d, data);
 		if (status == COOLDOWN)
 		{
@@ -86,5 +86,6 @@ int	wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data)
 			pthread_cond_wait(&d->cond_wait, &d->mutex);
 		else
 			return (pthread_mutex_unlock(&d->mutex));
+	    pthread_mutex_unlock(&d->mutex);
 	}
 }
