@@ -74,9 +74,14 @@ static void	*m_check(void *args)
 	return (NULL);
 }
 
-void	start_monitor(t_common_data *data, pthread_t *monitor)
+int	start_monitor(t_common_data *data, pthread_t *monitor)
 {
-	if (data)
-		pthread_create(monitor, NULL, m_check, data);
-	return ;
+	if (!data)
+		return (FAILURE);
+	if (pthread_create(monitor, NULL, m_check, data))
+	{
+		fprintf(stderr, "Error: Failed to create monitor thread\n");
+		return (FAILURE);
+	}
+	return (SUCCESS);
 }

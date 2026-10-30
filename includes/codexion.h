@@ -109,7 +109,7 @@ void	cleanup(void **ptr);
 int		print_error(char *msg);
 int		parse_args(t_simulation *simulation_ptr, int args_count, char **args);
 int		simulate(t_simulation *settings);
-void	start_monitor(t_common_data *data, pthread_t *monitor);
+int		start_monitor(t_common_data *data, pthread_t *monitor);
 long	get_elapsed_ms(struct timeval start);
 int		create_coders(t_common_data *data);
 int		start_coders(t_common_data *data);

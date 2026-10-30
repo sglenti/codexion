@@ -58,29 +58,25 @@ int	start_coders(t_common_data *data)
 {
 	int		i;
 	int		j;
-	t_coder	*coders;
 
-	coders = data->coders;
 	i = 0;
 	while (i < data->settings->number_of_coders)
 	{
-		if (pthread_create(&coders[i].thread, NULL, coder_routine, &coders[i]))
+		if (pthread_create(&data->coders[i].thread, NULL, coder_routine, \
+&data->coders[i]))
 		{
-			// 1. Tell everyone to stop
-			/*
 			pthread_mutex_lock(&data->state_mutex);
-			data->is_running = false; 
+			data->is_running = 2; 
+			pthread_cond_broadcast(&data->sim_start_cond);
 			pthread_mutex_unlock(&data->state_mutex);
-			*/
 			j = 0;
-			// 2. Join the ones that actually started
 			while (j < i)
 			{
 				pthread_join(data->coders[j].thread, NULL);
 				j++;
 			}
 			fprintf(stderr, "Error: Failed to create thread %d\n", i);
-			return (FAILURE); // NEED TO HANDLE ERROR!!!
+			return (FAILURE);
 		}
 		i++;
 	}

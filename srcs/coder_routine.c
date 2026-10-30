@@ -73,6 +73,8 @@ void	*coder_routine(void *args)
 		pthread_cond_wait(&data->sim_start_cond, &data->state_mutex);
 	coder->last_compile_time = get_elapsed_ms(data->start_time);
 	pthread_mutex_unlock(&data->state_mutex);
+	if (sim_is_running(data) == 2)
+		return (NULL);
 	while (1)
 	{
 		if (adquire_dongles(coder, data))

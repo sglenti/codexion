@@ -75,7 +75,8 @@ int	simulate(t_simulation *settings)
 		return (clean_all(&data, 0), FAILURE);
 	if (create_dongles(data, settings) || create_coders(data))
 		return (rm_locks(data), clean_all(&data, settings->number_of_coders), FAILURE);
-	start_coders(data);
+	if (start_coders(data) == FAILURE)
+		return (rm_locks(data), clean_all(&data, settings->number_of_coders), FAILURE);
 	gettimeofday(&data->start_time, NULL);
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 1;
