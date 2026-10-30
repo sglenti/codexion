@@ -58,20 +58,22 @@ int	main(int argc, char **argv)
 		"time_to_debug", "time_to_refactor", "number_of_compiles_required",
 		"dongle_cooldown", "scheduler"
 	};
+	int				exit_status;
 
+	exit_status = SUCCESS;
 	if (argc != 17 && argc != 9)
 		return (show_usage());
 	settings = (t_simulation *)malloc(sizeof(t_simulation));
 	if (!settings)
 		return (print_error("Error: failed to allocate memmory."));
 	add_keys(args, argv + 1, keys, argc - 1);
-	parse_args(settings, 16, args);
-	if (!settings)
-		return (show_usage());
-	if (settings->number_of_coders == 1)
+	exit_status = parse_args(settings, 16, args);
+	if (exit_status == FAILURE)
+		show_usage();
+	else if (settings->number_of_coders == 1)
 		single_coder(settings);
 	else
-		simulate(settings);
+		exit_status = simulate(settings);
 	cleanup((void **)&settings);
-	return (0);
+	return (exit_status);
 }

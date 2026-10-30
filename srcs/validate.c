@@ -89,8 +89,8 @@ static int	validate_arg(char **args, char *key)
 /*		Parse arguments and load them into simulation struct.
  * 
  *		On success, loads the arguments in the simulation struct passed as
- *		argument. On fail, clears the struct and assign it to NULL. */
-void	parse_args(t_simulation *simulation, int args_count, char **args)
+ *		argument and returns SUCCESS. Returns FAILURE with invalid arguments. */
+int	parse_args(t_simulation *simulation, int args_count, char **args)
 {
 	while (args_count)
 	{
@@ -111,8 +111,9 @@ void	parse_args(t_simulation *simulation, int args_count, char **args)
 		else if (validate_arg(args, "scheduler"))
 			simulation->scheduler = val_sched(*(args + 1));
 		else
-			return (cleanup((void *)simulation));
+			return (FAILURE);
 		args += 2;
 		args_count -= 2;
 	}
+	return (SUCCESS);
 }

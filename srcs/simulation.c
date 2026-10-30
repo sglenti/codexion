@@ -61,20 +61,20 @@ int	sim_is_running(t_common_data *data)
 	return (is_running);
 }
 
-void	simulate(t_simulation *settings)
+int	simulate(t_simulation *settings)
 {
 	t_common_data	*data;
 	pthread_t		monitor_id;
 
 	data = (t_common_data *)malloc(sizeof(t_common_data));
 	if (!data)
-		return ;
+		return (FAILURE);
 	memset(data, 0, sizeof(t_common_data));
 	data->settings = settings;
 	if (create_gen_locks(data))
-		return (clean_all(&data, 0));
+		return (clean_all(&data, 0), FAILURE);
 	if (create_dongles(data, settings) || create_coders(data))
-		return (clean_all(&data, settings->number_of_coders), rm_locks(data));
+		return (rm_locks(data), clean_all(&data, settings->number_of_coders), FAILURE);
 	start_coders(data);
 	gettimeofday(&data->start_time, NULL);
 	pthread_mutex_lock(&data->state_mutex);
@@ -86,4 +86,5 @@ void	simulate(t_simulation *settings)
 	pthread_join(monitor_id, NULL);
 	rm_locks(data);
 	clean_all(&data, settings->number_of_coders);
+	return (SUCCESS);
 }
