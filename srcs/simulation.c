@@ -82,9 +82,9 @@ int	simulate(t_simulation *settings)
 	data->is_running = 1;
 	pthread_cond_broadcast(&data->sim_start_cond);
 	pthread_mutex_unlock(&data->state_mutex);
-	start_monitor(data, &monitor_id);
-	wait_for_coders(data);
-	pthread_join(monitor_id, NULL);
+	if (start_monitor(data, &monitor_id) == FAILURE)
+		monitor_id = 0;
+	wait_for_coders(data, &monitor_id);
 	rm_locks(data);
 	clean_all(&data, settings->number_of_coders);
 	return (SUCCESS);

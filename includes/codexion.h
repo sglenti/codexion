@@ -113,7 +113,7 @@ int		start_monitor(t_common_data *data, pthread_t *monitor);
 long	get_elapsed_ms(struct timeval start);
 int		create_coders(t_common_data *data);
 int		start_coders(t_common_data *data);
-void	wait_for_coders(t_common_data *data);
+void	wait_for_coders(t_common_data *data, pthread_t *m);
 int		create_dongles(t_common_data *data, t_simulation *settings);
 void	clear_dongles(t_common_data *data, int count);
 void	write_log(char *str, int id, int d_id, t_common_data *data);

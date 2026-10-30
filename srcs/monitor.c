@@ -80,6 +80,10 @@ int	start_monitor(t_common_data *data, pthread_t *monitor)
 		return (FAILURE);
 	if (pthread_create(monitor, NULL, m_check, data))
 	{
+		pthread_mutex_lock(&data->state_mutex);
+		data->is_running = 2; 
+		pthread_cond_broadcast(&data->sim_start_cond);
+		pthread_mutex_unlock(&data->state_mutex);
 		fprintf(stderr, "Error: Failed to create monitor thread\n");
 		return (FAILURE);
 	}

@@ -83,7 +83,7 @@ int	start_coders(t_common_data *data)
 	return (SUCCESS);
 }
 
-void	wait_for_coders(t_common_data *data)
+void	wait_for_coders(t_common_data *data, pthread_t	*monitor_id)
 {
 	int		i;
 	t_coder	*coders;
@@ -99,4 +99,6 @@ void	wait_for_coders(t_common_data *data)
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 0;
 	pthread_mutex_unlock(&data->state_mutex);
+	if (*monitor_id)
+		pthread_join(*monitor_id, NULL);
 }
