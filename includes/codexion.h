@@ -103,6 +103,7 @@ enum	e_Result
 # define DEBBUG "%ld %d is debugging\n"
 # define REFACT "%ld %d is refactoring\n"
 # define BURNED "%ld %d burned out\n"
+# define ERRMSG "Error: Wrong value for %s, (%s)\n\n"
 
 void	cleanup(void **ptr);
 int		print_error(char *msg);

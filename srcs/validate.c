@@ -12,6 +12,10 @@
 
 #include "codexion.h"
 
+#ifndef MAX_CODERS
+# define MAX_CODERS 256
+#endif
+
 /* Trim argument, compare to key and validate value.
  * Returns 0 for wrong vaules, non-zero if valid. */
 static int	val_key(char *arg, char *key)
@@ -26,8 +30,13 @@ static int	val_key(char *arg, char *key)
 static int	val_int(char *num_str)
 {
 	int	valid;
+	int	len;
 
-	if (!num_str || strlen(num_str) > 10)
+	len = strlen(num_str);
+	if (!num_str || len > 10)
+		return (0);
+	if (len == 10 && \
+((num_str[0] == '2' && atoi(&num_str[1]) > 147483647) || num_str[0] > '2'))
 		return (0);
 	valid = 0;
 	while (*num_str)
@@ -69,8 +78,7 @@ static int	validate_arg(char **args, char *key)
 	{
 		if (!val_sched(*(args + 1)))
 		{
-			fprintf(stderr, "Error: Wrong value for %s, (%s)\n\n", \
-*args, *(args + 1));
+			fprintf(stderr, ERRMSG, *args, *(args + 1));
 			return (0);
 		}
 	}
@@ -78,8 +86,12 @@ static int	validate_arg(char **args, char *key)
 	{
 		if (!val_int(*(args + 1)))
 		{
-			fprintf(stderr, "Error: Wrong value for %s, (%s)\n\n", \
-*args, *(args + 1));
+			fprintf(stderr, ERRMSG, *args, *(args + 1));
+			return (0);
+		}
+		if (!strcmp(key, "number_of_coders") && atoi(*(args + 1)) > MAX_CODERS)
+		{
+			fprintf(stderr, "Max number_of_coders=%d\n\n", MAX_CODERS);
 			return (0);
 		}
 	}

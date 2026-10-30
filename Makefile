@@ -6,7 +6,7 @@
 #    By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/20 19:26:08 by slenti            #+#    #+#              #
-#    Updated: 2026/10/28 18:30:40 by slenti           ###   ########.fr        #
+#    Updated: 2026/10/30 18:31:09 by slenti           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@
 #  Variables
 # -------------------------------------------------
 CC = cc
-CFLAGS = -g -Wall -Wextra -Werror -pthread -I$(INC_DIR)
+MAX_CODERS ?= 256
+CFLAGS = -Wall -Wextra -Werror -pthread -I$(INC_DIR) -DMAX_CODERS=$(MAX_CODERS)
 RM = rm -f
 
 NAME = codexion
