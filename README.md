@@ -210,12 +210,11 @@ A race would exist if two coders both read the same dongle state and both decide
 ## Resources
 
 ### References
-
-- The Dining Philosophers problem and classic resource-allocation patterns
-- POSIX Threads Programming (`pthread_mutex_t`, `pthread_cond_t`, `pthread_cond_wait`, `pthread_cond_timedwait`)
-- Operating systems concepts on concurrency, scheduling, and deadlock
-- Real-time scheduling literature for EDF and deadline-based policy design
-- The 42 project subject and its concurrency requirements
+- "Chapter 4: Threads" in *Mitchell, M., Samuel, A., & Oldham, J. (2001). Advanced Linux programming. New Riders Publishing.*
+- [Multithreading in C](https://www.geeksforgeeks.org/c/multithreading-in-c/)
+- [Introduction to Min-Heap](https://www.geeksforgeeks.org/dsa/introduction-to-min-heap-data-structure/)
+- [POSIX threads - Linux man page](https://www.man7.org/linux/man-pages/man7/pthreads.7.html)
+- [Dining Philosophers Problem](https://www.geeksforgeeks.org/operating-systems/dining-philosophers-problem/)
 
 ### AI usage
 
