@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:02:12 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/29 21:25:49 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/31 17:52:18 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,14 @@ void	heap_reg(t_coder *coder, t_dongle *dongle, int policy)
 	h->nodes[h->size].coder_id = coder->id;
 	h->nodes[h->size].priority = priority;
 	h->size++;
-	// Since max size is 2, just swap if parent > child (Min-Heap)
-	if (h->size == 2 && h->nodes[0].priority > h->nodes[1].priority)
-		swap_nodes(&h->nodes[0], &h->nodes[1]);
+	if (h->size == 2)
+	{
+		if (h->nodes[0].priority > h->nodes[1].priority)
+			swap_nodes(&h->nodes[0], &h->nodes[1]);
+		else if (h->nodes[0].priority == h->nodes[1].priority && \
+policy == EDF && h->nodes[0].coder_id > h->nodes[1].coder_id)
+			swap_nodes(&h->nodes[0], &h->nodes[1]);
+	}
 	pthread_mutex_unlock(&dongle->mutex);
 }
 
