@@ -6,7 +6,7 @@
 #    By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/20 19:26:08 by slenti            #+#    #+#              #
-#    Updated: 2026/10/30 18:31:09 by slenti           ###   ########.fr        #
+#    Updated: 2026/10/31 19:36:25 by slenti           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,6 +15,12 @@
 # -------------------------------------------------
 CC = cc
 MAX_CODERS ?= 256
+ifeq ($(shell test $(MAX_CODERS) -gt 2147483647 && echo yes || echo no),yes)
+$(error MAX_CODERS exceeds INT_MAX)
+endif
+ifeq ($(shell test $(MAX_CODERS) -le 0 && echo yes || echo no),yes)
+$(error MAX_CODERS must be greater than 0)
+endif
 CFLAGS = -Wall -Wextra -Werror -pthread -I$(INC_DIR) -DMAX_CODERS=$(MAX_CODERS)
 RM = rm -f
 
@@ -29,13 +35,13 @@ SRCS := main.c error.c validate.c simulation.c monitor.c coders.c dongles.c \
 SRCS_FULL := $(addprefix $(SRCS_DIR)/,$(SRCS))
 OBJS := $(patsubst $(SRCS_DIR)/%.c,$(OBJS_DIR)/%.o,$(SRCS_FULL))
 
-#LIB_DIR = libft
-#LIB_NAME = $(LIB_DIR)/libft.a
-
 # -------------------------------------------------
 #  Build rules
 # -------------------------------------------------
 all: $(NAME)
+
+$(OBJS_DIR):
+	mkdir -p $@
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS)
@@ -43,8 +49,7 @@ $(NAME): $(OBJS)
 # -------------------------------------------------
 #  Compile each .c → .o
 # -------------------------------------------------
-$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c
-	mkdir -p $(dir $@)
+$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

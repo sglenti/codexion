@@ -19,6 +19,15 @@
 # include <sys/time.h>
 # include <stdio.h>
 # include <string.h>
+# include <limits.h>
+
+#ifndef MAX_CODERS
+# define MAX_CODERS 256
+#endif
+
+#if MAX_CODERS > INT_MAX
+# error "MAX_CODERS exceeds INT_MAX"
+#endif
 
 typedef struct s_heap_node
 {

@@ -75,7 +75,7 @@ int	start_coders(t_common_data *data)
 				pthread_join(data->coders[j].thread, NULL);
 				j++;
 			}
-			fprintf(stderr, "Error: Failed to create thread %d\n", i);
+			fprintf(stderr, "Error: Failed to create coder %d\n", i + 1);
 			return (FAILURE);
 		}
 		i++;
