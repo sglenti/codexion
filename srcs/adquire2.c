@@ -12,17 +12,19 @@
 
 #include "codexion.h"
 
+/* Convert the timeout (in ms) to absolute time.
+ *
+ * Convert ms to seconds and nanoseconds
+ * Carry over nanoseconds to seconds if it exceeds 1,000,000,000
+*/
 static struct timespec	get_abs_timeout(long timeout)
 {
 	struct timeval	now;
 	struct timespec	abs_timeout;
 
 	gettimeofday(&now, NULL);
-	// Add the timeout (in ms) to the current time
-	// Convert ms to seconds and nanoseconds
 	abs_timeout.tv_sec = now.tv_sec + (timeout / 1000);
 	abs_timeout.tv_nsec = (now.tv_usec * 1000) + ((timeout % 1000) * 1000000);
-	// Carry over nanoseconds to seconds if it exceeds 1,000,000,000
 	if (abs_timeout.tv_nsec >= 1000000000)
 	{
 		abs_timeout.tv_sec += 1;

@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:02:12 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/31 17:52:18 by slenti           ###   ########.fr       */
+/*   Updated: 2026/10/31 18:40:02 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ policy == EDF && h->nodes[0].coder_id > h->nodes[1].coder_id)
 	pthread_mutex_unlock(&dongle->mutex);
 }
 
-// dereg: Remove the coder when they successfully get the resource
 void	heap_dereg(t_coder *coder, t_dongle *dongle)
 {
 	t_heap	*h;
@@ -59,13 +58,11 @@ void	heap_dereg(t_coder *coder, t_dongle *dongle)
 
 	h = &dongle->wait_queue;
 	i = 0;
-	// Find and remove (since size is max 2, simple loop is fine)
 	pthread_mutex_lock(&dongle->mutex);
 	while (i < h->size)
 	{
 		if (h->nodes[i].coder_id == coder->id)
 		{
-			// Shift elements if necessary
 			h->nodes[i] = h->nodes[h->size - 1];
 			h->size--;
 			pthread_mutex_unlock(&dongle->mutex);

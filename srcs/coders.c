@@ -66,7 +66,7 @@ int	start_coders(t_common_data *data)
 &data->coders[i]))
 		{
 			pthread_mutex_lock(&data->state_mutex);
-			data->is_running = 2; 
+			data->is_running = 2;
 			pthread_cond_broadcast(&data->sim_start_cond);
 			pthread_mutex_unlock(&data->state_mutex);
 			j = 0;

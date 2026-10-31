@@ -44,7 +44,7 @@ void	clean_all(t_common_data **data, int count)
 	*data = NULL;
 }
 
-static void	rm_locks(t_common_data *data)
+static void	rmlcks(t_common_data *data)
 {
 	pthread_cond_destroy(&data->sim_start_cond);
 	pthread_mutex_destroy(&data->log_mutex);
@@ -74,9 +74,9 @@ int	simulate(t_simulation *settings)
 	if (create_gen_locks(data))
 		return (clean_all(&data, 0), FAILURE);
 	if (create_dongles(data, settings) || create_coders(data))
-		return (rm_locks(data), clean_all(&data, settings->number_of_coders), FAILURE);
+		return (rmlcks(data), clean_all(&data, settings->number_of_coders), 1);
 	if (start_coders(data) == FAILURE)
-		return (rm_locks(data), clean_all(&data, settings->number_of_coders), FAILURE);
+		return (rmlcks(data), clean_all(&data, settings->number_of_coders), 1);
 	gettimeofday(&data->start_time, NULL);
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = 1;
@@ -85,7 +85,7 @@ int	simulate(t_simulation *settings)
 	if (start_monitor(data, &monitor_id) == FAILURE)
 		monitor_id = 0;
 	wait_for_coders(data, &monitor_id);
-	rm_locks(data);
+	rmlcks(data);
 	clean_all(&data, settings->number_of_coders);
 	return (SUCCESS);
 }
