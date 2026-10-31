@@ -98,7 +98,7 @@ enum	e_Result
 	FAILURE
 };
 
-# define DONGLE "%ld %d has taken a dongle(%d)\n"
+# define DONGLE "%ld %d has taken a dongle\n"
 # define COMPILE "%ld %d is compiling\n"
 # define DEBBUG "%ld %d is debugging\n"
 # define REFACT "%ld %d is refactoring\n"
