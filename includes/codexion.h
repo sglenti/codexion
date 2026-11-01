@@ -107,7 +107,7 @@ enum	e_Result
 	FAILURE
 };
 
-# define DONGLE "%ld %d has taken a dongle\n"
+# define DONGLE "%ld %d has taken a dongle(%d)\n"
 # define COMPILE "%ld %d is compiling\n"
 # define DEBBUG "%ld %d is debugging\n"
 # define REFACT "%ld %d is refactoring\n"
@@ -128,10 +128,10 @@ void	clear_dongles(t_common_data *data, int count);
 void	write_log(char *str, int id, int d_id, t_common_data *data);
 void	*coder_routine(void *args);
 int		adquire_dongles(t_coder *coder, t_common_data *data);
-void	heap_reg(t_coder *coder, t_dongle *dongle, int policy);
-void	heap_dereg(t_coder *coder, t_dongle *dongle);
+void	heap_reg(t_coder *coder, int policy);
+void	heap_dereg(t_coder *coder);
 int		sim_is_running(t_common_data *data);
-int		wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data);
+int		wait_for_dongles(t_coder *coder, t_common_data *data);
 void	single_coder(t_simulation *settings);
 
 #endif

@@ -60,9 +60,10 @@ static int	is_blocked(t_coder *coder, t_dongle *dongle, t_common_data *data)
 		return (AVAILABLE);
 }
 
-int	wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data)
+int	wait_for_dongles(t_coder *coder, t_common_data *data)
 {
-	int				status;
+	int				status1;
+	int				status2;
 	struct timespec	ts;
 	long			now;
 	long			wait_remaining;
@@ -71,20 +72,39 @@ int	wait_for_dongle(t_coder *coder, t_dongle *d, t_common_data *data)
 	{
 		if (!sim_is_running(data))
 			return (0);
-		pthread_mutex_lock(&d->mutex);
-		status = is_blocked(coder, d, data);
-		if (status == COOLDOWN)
+		pthread_mutex_lock(&coder->dongle1->mutex);
+		pthread_mutex_lock(&coder->dongle2->mutex);
+		status1 = is_blocked(coder, coder->dongle1, data);
+		status2 = is_blocked(coder, coder->dongle2, data);
+		if (status1 == COOLDOWN || status2 == COOLDOWN)
 		{
 			now = get_elapsed_ms(data->start_time);
-			wait_remaining = data->settings->dongle_cooldown \
-- (now - d->cooldown_start);
-			ts = get_abs_timeout(wait_remaining);
-			pthread_cond_timedwait(&d->cond_wait, &d->mutex, &ts);
+			if (status1 == COOLDOWN)
+			{
+				wait_remaining = data->settings->dongle_cooldown
+					- (now - coder->dongle2->cooldown_start);
+				ts = get_abs_timeout(wait_remaining);
+				pthread_cond_timedwait(&coder->dongle1->cond_wait, &coder->dongle1->mutex, &ts);
+			}
+			else
+			{
+				wait_remaining = data->settings->dongle_cooldown
+					- (now - coder->dongle2->cooldown_start);
+				ts = get_abs_timeout(wait_remaining);
+				pthread_cond_timedwait(&coder->dongle2->cond_wait, &coder->dongle2->mutex, &ts);
+			}
 		}
-		else if (status == TAKEN || status == RESERVED)
-			pthread_cond_wait(&d->cond_wait, &d->mutex);
+		else if (status1 == TAKEN || status1 == RESERVED)
+			pthread_cond_wait(&coder->dongle1->cond_wait, &coder->dongle1->mutex);
+		else if (status2 == TAKEN || status2 == RESERVED)
+			pthread_cond_wait(&coder->dongle2->cond_wait, &coder->dongle2->mutex);
 		else
-			return (pthread_mutex_unlock(&d->mutex));
-		pthread_mutex_unlock(&d->mutex);
+		{
+			pthread_mutex_unlock(&coder->dongle1->mutex);
+			pthread_mutex_unlock(&coder->dongle2->mutex);
+			return (SUCCESS);
+		}
+		pthread_mutex_unlock(&coder->dongle1->mutex);
+		pthread_mutex_unlock(&coder->dongle2->mutex);
 	}
 }

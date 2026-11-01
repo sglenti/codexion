@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/29 21:29:42 by slenti           ###   ########.fr       */
+/*   Updated: 2026/11/01 00:20:23 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,15 +24,12 @@ static void	get_dongles(t_coder *coder)
 
 int	adquire_dongles(t_coder *coder, t_common_data *data)
 {
-	heap_reg(coder, coder->dongle1, data->settings->scheduler);
-	heap_reg(coder, coder->dongle2, data->settings->scheduler);
-	wait_for_dongle(coder, coder->dongle1, data);
-	wait_for_dongle(coder, coder->dongle2, data);
-	heap_dereg(coder, coder->dongle1);
-	heap_dereg(coder, coder->dongle2);
+	heap_reg(coder, data->settings->scheduler);
+	wait_for_dongles(coder, data);
+	get_dongles(coder);
+	heap_dereg(coder);
 	if (!sim_is_running(data))
 		return (1);
-	get_dongles(coder);
 	write_log(DONGLE, coder->id, coder->dongle1->id, data);
 	write_log(DONGLE, coder->id, coder->dongle2->id, data);
 	return (0);
