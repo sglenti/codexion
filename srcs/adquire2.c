@@ -12,25 +12,25 @@
 
 #include "codexion.h"
 
-/* Convert the timeout (in ms) to absolute time.
- *
- * Convert ms to seconds and nanoseconds
- * Carry over nanoseconds to seconds if it exceeds 1,000,000,000
-*/
-static struct timespec	get_abs_timeout(long timeout)
+static void	take_dongles(t_coder *coder)
 {
-	struct timeval	now;
-	struct timespec	abs_timeout;
+	coder->dongle1->is_taken = 1;
+	coder->dongle2->is_taken = 1;
+	pthread_mutex_unlock(&coder->dongle2->mutex);
+	pthread_mutex_unlock(&coder->dongle1->mutex);
+}
 
-	gettimeofday(&now, NULL);
-	abs_timeout.tv_sec = now.tv_sec + (timeout / 1000);
-	abs_timeout.tv_nsec = (now.tv_usec * 1000) + ((timeout % 1000) * 1000000);
-	if (abs_timeout.tv_nsec >= 1000000000)
-	{
-		abs_timeout.tv_sec += 1;
-		abs_timeout.tv_nsec -= 1000000000;
-	}
-	return (abs_timeout);
+int	adquire_dongles(t_coder *coder, t_common_data *data)
+{
+	heap_reg(coder, data->settings->scheduler);
+	wait_for_dongles(coder, data);
+	take_dongles(coder);
+	heap_dereg(coder);
+	if (!sim_is_running(data))
+		return (1);
+	write_log(DONGLE, coder->id, coder->dongle1->id, data);
+	write_log(DONGLE, coder->id, coder->dongle2->id, data);
+	return (0);
 }
 
 static int	is_cooling_down(t_dongle *dongle, t_common_data *data)
@@ -48,7 +48,7 @@ static int	is_reserved(t_coder *c, t_dongle *d)
 	return (d->wait_queue.nodes[0].coder_id != c->id);
 }
 
-static int	is_blocked(t_coder *coder, t_dongle *dongle, t_common_data *data)
+int	is_blocked(t_coder *coder, t_dongle *dongle, t_common_data *data)
 {
 	if (dongle->is_taken)
 		return (TAKEN);
@@ -60,6 +60,7 @@ static int	is_blocked(t_coder *coder, t_dongle *dongle, t_common_data *data)
 		return (AVAILABLE);
 }
 
+/*
 int	wait_for_dongles(t_coder *coder, t_common_data *data)
 {
 	int				status1;
@@ -81,30 +82,41 @@ int	wait_for_dongles(t_coder *coder, t_common_data *data)
 			now = get_elapsed_ms(data->start_time);
 			if (status1 == COOLDOWN)
 			{
+				pthread_mutex_unlock(&coder->dongle2->mutex);
 				wait_remaining = data->settings->dongle_cooldown
-					- (now - coder->dongle2->cooldown_start);
+							- (now - coder->dongle1->cooldown_start);
 				ts = get_abs_timeout(wait_remaining);
-				pthread_cond_timedwait(&coder->dongle1->cond_wait, &coder->dongle1->mutex, &ts);
+				pthread_cond_timedwait(&coder->dongle1->
+							cond_wait, &coder->dongle1->mutex, &ts);
+				pthread_mutex_unlock(&coder->dongle1->mutex);
 			}
 			else
 			{
+				pthread_mutex_unlock(&coder->dongle1->mutex);
 				wait_remaining = data->settings->dongle_cooldown
 					- (now - coder->dongle2->cooldown_start);
 				ts = get_abs_timeout(wait_remaining);
-				pthread_cond_timedwait(&coder->dongle2->cond_wait, &coder->dongle2->mutex, &ts);
+				pthread_cond_timedwait(&coder->
+						dongle2->cond_wait, &coder->dongle2->mutex, &ts);
+				pthread_mutex_unlock(&coder->dongle2->mutex);
 			}
 		}
 		else if (status1 == TAKEN || status1 == RESERVED)
-			pthread_cond_wait(&coder->dongle1->cond_wait, &coder->dongle1->mutex);
+		{
+			pthread_mutex_unlock(&coder->dongle2->mutex);
+			pthread_cond_wait(&coder->dongle1->cond_wait,
+					&coder->dongle1->mutex);
+			pthread_mutex_unlock(&coder->dongle1->mutex);
+		}
 		else if (status2 == TAKEN || status2 == RESERVED)
-			pthread_cond_wait(&coder->dongle2->cond_wait, &coder->dongle2->mutex);
-		else
 		{
 			pthread_mutex_unlock(&coder->dongle1->mutex);
+			pthread_cond_wait(&coder->dongle2->cond_wait,
+					&coder->dongle2->mutex);
 			pthread_mutex_unlock(&coder->dongle2->mutex);
-			return (SUCCESS);
 		}
-		pthread_mutex_unlock(&coder->dongle1->mutex);
-		pthread_mutex_unlock(&coder->dongle2->mutex);
+		else
+			return (SUCCESS);
 	}
 }
+*/

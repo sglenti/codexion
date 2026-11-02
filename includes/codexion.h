@@ -133,5 +133,6 @@ void	heap_dereg(t_coder *coder);
 int		sim_is_running(t_common_data *data);
 int		wait_for_dongles(t_coder *coder, t_common_data *data);
 void	single_coder(t_simulation *settings);
+int		is_blocked(t_coder *coder, t_dongle *dongle, t_common_data *data);
 
 #endif

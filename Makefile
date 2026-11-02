@@ -6,7 +6,7 @@
 #    By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/20 19:26:08 by slenti            #+#    #+#              #
-#    Updated: 2026/10/31 19:36:25 by slenti           ###   ########.fr        #
+#    Updated: 2026/11/02 22:21:05 by slenti           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ OBJS_DIR := build
 INC_DIR := includes
 
 SRCS := main.c error.c validate.c simulation.c monitor.c coders.c dongles.c \
-		logger.c coder_routine.c adquire.c adquire2.c heap.c
+		logger.c coder_routine.c adquire1.c adquire2.c heap.c
 
 SRCS_FULL := $(addprefix $(SRCS_DIR)/,$(SRCS))
 OBJS := $(patsubst $(SRCS_DIR)/%.c,$(OBJS_DIR)/%.o,$(SRCS_FULL))
