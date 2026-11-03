@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   adquire.c                                          :+:      :+:    :+:   */
+/*   adquire1.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/11/02 19:28:24 by slenti           ###   ########.fr       */
+/*   Updated: 2026/11/03 16:07:33 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ struct timespec	get_abs_timeout(long timeout)
 	return (abs_timeout);
 }
 
-static int	handle_cooldown(t_coder *coder, t_common_data *data, int status1)
+static void	handle_cooldown(t_coder *coder, t_common_data *data, int status1)
 {
 	long			now;
 	long			wait_remaining;
@@ -60,10 +60,9 @@ static int	handle_cooldown(t_coder *coder, t_common_data *data, int status1)
 			&coder->dongle2->mutex, &ts);
 		pthread_mutex_unlock(&coder->dongle2->mutex);
 	}
-	return (1);
 }
 
-static int	handle_blocked(t_coder *coder, int status1, int status2)
+static void	handle_blocked(t_coder *coder, int status1, int status2)
 {
 	if (status1 == TAKEN || status1 == RESERVED)
 	{
@@ -79,7 +78,6 @@ static int	handle_blocked(t_coder *coder, int status1, int status2)
 			&coder->dongle2->mutex);
 		pthread_mutex_unlock(&coder->dongle2->mutex);
 	}
-	return (1);
 }
 
 int	wait_for_dongles(t_coder *coder, t_common_data *data)

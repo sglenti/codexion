@@ -6,13 +6,12 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:02:12 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/31 23:51:19 by slenti           ###   ########.fr       */
+/*   Updated: 2026/11/03 16:00:09 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-// Helper to swap two nodes in the heap
 static void	swap_nodes(t_heap_node *a, t_heap_node *b)
 {
 	t_heap_node	tmp;
@@ -22,7 +21,7 @@ static void	swap_nodes(t_heap_node *a, t_heap_node *b)
 	*b = tmp;
 }
 
-static void add_reg_to_dongle(t_heap *h, int id, long priority, int policy)
+static void	add_reg_to_dongle(t_heap *h, int id, long priority, int policy)
 {
 	h->nodes[h->size].coder_id = id;
 	h->nodes[h->size].priority = priority;
