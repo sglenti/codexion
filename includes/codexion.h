@@ -33,6 +33,7 @@ typedef struct s_heap_node
 {
 	int		coder_id;
 	long	priority;
+	long	seq_num;
 }	t_heap_node;
 
 typedef struct s_heap
@@ -84,6 +85,7 @@ typedef struct s_common_data
 	pthread_cond_t	sim_start_cond;
 	int				is_running;
 	struct timeval	start_time;
+	long			request_seq;
 }	t_common_data;
 
 enum	e_Sched

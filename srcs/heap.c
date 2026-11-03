@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:02:12 by slenti            #+#    #+#             */
-/*   Updated: 2026/11/03 16:00:09 by slenti           ###   ########.fr       */
+/*   Updated: 2026/11/03 18:29:24 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,17 +21,17 @@ static void	swap_nodes(t_heap_node *a, t_heap_node *b)
 	*b = tmp;
 }
 
-static void	add_reg_to_dongle(t_heap *h, int id, long priority, int policy)
+static void	add_reg_to_dongle(t_heap *h, int id, long priority, long seq_num)
 {
 	h->nodes[h->size].coder_id = id;
 	h->nodes[h->size].priority = priority;
+	h->nodes[h->size].seq_num = seq_num;
 	h->size++;
 	if (h->size == 2)
 	{
-		if (h->nodes[0].priority > h->nodes[1].priority)
-			swap_nodes(&h->nodes[0], &h->nodes[1]);
-		else if (h->nodes[0].priority == h->nodes[1].priority && \
-policy == EDF && h->nodes[0].coder_id > h->nodes[1].coder_id)
+		if (h->nodes[0].priority > h->nodes[1].priority
+			|| (h->nodes[0].priority == h->nodes[1].priority
+				&& h->nodes[0].seq_num > h->nodes[1].seq_num))
 			swap_nodes(&h->nodes[0], &h->nodes[1]);
 	}
 }
@@ -40,9 +40,11 @@ void	heap_reg(t_coder *coder, int policy)
 {
 	long			priority;
 	t_common_data	*data;
+	long			seq_no;
 
 	data = coder->data;
 	pthread_mutex_lock(&data->state_mutex);
+	seq_no = data->request_seq++;
 	if (policy == FIFO)
 		priority = get_elapsed_ms(data->start_time);
 	else
@@ -50,8 +52,8 @@ void	heap_reg(t_coder *coder, int policy)
 	pthread_mutex_unlock(&data->state_mutex);
 	pthread_mutex_lock(&coder->dongle1->mutex);
 	pthread_mutex_lock(&coder->dongle2->mutex);
-	add_reg_to_dongle(&coder->dongle1->wait_queue, coder->id, priority, policy);
-	add_reg_to_dongle(&coder->dongle2->wait_queue, coder->id, priority, policy);
+	add_reg_to_dongle(&coder->dongle1->wait_queue, coder->id, priority, seq_no);
+	add_reg_to_dongle(&coder->dongle2->wait_queue, coder->id, priority, seq_no);
 	pthread_mutex_unlock(&coder->dongle2->mutex);
 	pthread_mutex_unlock(&coder->dongle1->mutex);
 }
