@@ -15,7 +15,7 @@ In this project, several coders act as concurrent threads. Each coder alternates
 - refactor,
 - and repeat until the simulation ends.
 
-The global goal is to prevent burnout while ensuring that each coder keeps compiling enough times to satisfy the required total number of completed compilation cycles. A coder burns out if they do not start a new compilation before their deadline (`last_compile_start + time_to_burnout`).
+The global goal is to prevent burnout while ensuring that each coder keeps compiling enough times to satisfy the required total number of completed compilation cycles. A coder burns out if they do not start a new compilation before their deadline (`last_compile_time + time_to_burnout`).
 
 The simulation includes two scheduling policies for the dongles:
 
@@ -23,18 +23,9 @@ The simulation includes two scheduling policies for the dongles:
 - EDF: requests are served according to the earliest deadline first.
 
 The implementation is built with POSIX threads and synchronization primitives, and it includes a monitor thread dedicated to detecting burnout in a timely and precise way.
-
-## Project goals
-
-This project addresses several core concurrency concepts:
-
-- resource sharing under contention,
-- deadlock avoidance,
-- starvation prevention,
-- cooldown enforcement,
-- priority-based scheduling,
-- precise event logging under concurrency,
-- and proper thread lifecycle management.
+ 
+This project addresses several core concurrency concepts: resource sharing under contention, deadlock avoidance, starvation prevention, cooldown enforcement, priority-based scheduling, precise event logging under concurrency,
+and proper thread lifecycle management.
 
 ## Instructions
 
@@ -42,10 +33,7 @@ This project addresses several core concurrency concepts:
 
 The project is written in C and must compile with the required flags:
 
-- `-Wall`
-- `-Wextra`
-- `-Werror`
-- `-pthread`
+`-Wall` `-Wextra` `-Werror` `-pthread`
 
 ### Compilation
 
@@ -58,13 +46,18 @@ make
 Available standard rules:
 
 ```bash
-make all
-make clean
-make fclean
-make re
+make          # build
+make clean    # remove object files
+make fclean   # remove object files and executable
+make re       # clean and rebuild
 ```
 
+An optional flag allows to set at compile time the maximum number of coders accepted by the simulation (the default is 256):
+
+```bash
+make MAX_CODERS=128
 ### Execution
+```
 
 The program expects the following arguments:
 
@@ -104,62 +97,84 @@ The implementation follows the project specification with a clear separation bet
 - `simulation.c`: initialization of shared simulation state and thread startup.
 - `coder_routine.c`: coder lifecycle and state transitions.
 - `dongles.c`: dongle creation and cleanup.
-- `adquire.c`: resource acquisition logic, cooldown checks, and queue management.
+- `adquire1.c/adquire2.c`: resource acquisition logic, cooldown checks, and queue management.
 - `heap.c`: custom priority queue used to determine which coder is served next.
 - `monitor.c`: burnout detection thread.
 - `validate.c`: input validation.
 - `logger.c`: serialized logging.
 
-The design keeps the simulation deterministic enough for concurrency testing while respecting real-time constraints.
-
 ## Blocking cases handled
-
-This implementation explicitly addresses the main concurrency hazards that appear in this problem.
 
 ### 1. Deadlock prevention
 
-A deadlock can occur if two or more coders hold one resource and wait forever for another. To avoid this, the project organizes access to the dongles around a single scheduler admission phase:
+## Blocking and concurrency hazards
 
-- each coder registers a request for both dongles,
-- the wait queue is evaluated under the selected policy,
-- only when a coder is eligible does it continue to acquisition,
-- and the acquisition of both dongles is treated as a single coordinated step.
+Codexion coordinates access to dongles with per-dongle mutexes and condition
+variables. The scheduler also records each coder's request in the wait queues.
+The design explicitly addresses the main synchronization risks in this problem.
 
-This prevents the classic circular wait pattern where each coder holds one dongle and waits for the other.
 
-### 2. Starvation prevention and fairness
 
-The scheduler prevents a coder from being perpetually bypassed:
+### Deadlock prevention
 
-- under `fifo`, requests are served in arrival order,
-- under `edf`, the earliest-deadline request is prioritized,
-- the implementation uses a custom heap structure instead of a standard library priority queue, as required by the subject.
+Coffman's conditions describe four conditions that must all hold for a
+deadlock to occur:
 
-These policies guarantee that request ordering is explicit and deterministic.
+1. **Mutual exclusion** — a resource can be held by only one thread at a time.
+2. **Hold and wait** — a thread holds one resource while waiting for another.
+3. **No preemption** — a resource cannot be forcibly taken from its holder.
+4. **Circular wait** — threads form a cycle, each waiting for a resource held
+   by the next thread.
 
-### 3. Cooldown handling
+A deadlock can occur when one coder holds one dongle and waits for another,
+while another coder does the opposite. To avoid this, each coder treats the
+acquisition of its two dongles as a single coordinated operation: it checks the
+state of both dongles, evaluates the scheduler priority, and then claims both
+under their mutexes in a fixed order.
 
-After a dongle is released, it cannot be immediately reused. The code stores the cooldown timestamp and checks it before granting access again. This prevents a fast re-acquisition loop that would otherwise cause unfair resource churn and reduce the effective scheduling quality.
+The critical rule is that all code paths acquiring multiple dongles must do so
+in the same lock order. This prevents circular waits between competing coders.
 
-### 4. Precise burnout detection
+To keep that lock order consistent around the coder/dongle ring, coder 1's
+dongle pointers are switched during initialization. As a result, every coder
+locks its lower-numbered dongle first and its higher-numbered dongle second.
+This prevents competing coders from acquiring the same pair of mutexes in
+opposite orders, which could otherwise create a circular wait.
 
-A monitor thread checks elapsed time against each coder’s last compile time. If a coder exceeds its deadline, the monitor emits the burnout log as quickly as possible and stops the simulation.
+### Waiting and cooldown
 
-This is intentionally separated from the coder threads to keep the failure detection independent from the execution of the coders themselves.
+A coder that cannot proceed waits on its dongle condition variable instead of
+busy-waiting. Releasing a dongle broadcasts to waiters, but the awakened coder
+must re-check the state before proceeding: the resource may still be unavailable
+or the cooldown may not have expired.
 
-### 5. Log serialization
+### Request ordering
 
-Because multiple threads emit state transitions concurrently, the output must never interleave on a single line. The logger is protected by a mutex, which serializes all writes to stdout and ensures that messages remain readable and correctly ordered.
+Each dongle owns a compact request queue. FIFO serves requests by arrival time,
+while EDF prioritizes the request with the earliest effective deadline. The
+scheduler selects which waiting coder is allowed to proceed, and the selected
+coder is the one whose request is at the front of the relevant heap.
 
-### 6. Resource leaks and cleanup
+### TOCTOU race prevention
 
-All allocated resources are cleaned up at the end of the simulation:
+A TOCTOU (time-of-check to time-of-use) race occurs when a thread evaluates the
+state of the shared resources and then acts on that result after another thread
+has changed the same state. In the current implementation, the check and the
+claim are protected by the same dongle mutexes, and the code does not release
+either mutex in between.
 
-- mutexes are destroyed,
-- condition variables are destroyed,
-- dongles are freed,
-- coder arrays are released,
-- and the simulation state is cleared.
+This means the decision to proceed is both atomic and consistent with the
+resource state: the request is validated, then the reservation is made while
+still holding the mutexes. The race is therefore avoided by making the
+check-and-claim a single critical section instead of two separate actions.
+
+### Shutdown and burnout
+
+A monitor thread checks each coder's elapsed time since its last compilation.
+When a burnout is detected, the simulation is stopped and waiting coders are
+notified so they can re-check the running state and exit safely. Condition
+variables are used with a predicate-based wait protocol, so wake-ups do not
+cause false progress when the required condition is still unsatisfied.
 
 ## Thread synchronization mechanisms
 
@@ -195,7 +210,7 @@ This is critical for avoiding busy-waiting and for coordinating the thread wake-
 Each dongle owns a small custom heap-like request structure. It stores the coder identifiers and their scheduling priority:
 
 - for FIFO: arrival time,
-- for EDF: the deadline (`last_compile_start + time_to_burnout`).
+- for EDF: the deadline (`last_compile_time + time_to_burnout`).
 
 This queue is the core of the arbitration policy. It avoids standard library priority queue usage and keeps the ordering logic explicit and project-compliant.
 
