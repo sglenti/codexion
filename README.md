@@ -106,15 +106,9 @@ The implementation follows the project specification with a clear separation bet
 
 ## Blocking cases handled
 
-### 1. Deadlock prevention
-
-## Blocking and concurrency hazards
-
 Codexion coordinates access to dongles with per-dongle mutexes and condition
 variables. The scheduler also records each coder's request in the wait queues.
 The design explicitly addresses the main synchronization risks in this problem.
-
-
 
 ### Deadlock prevention
 
