@@ -96,6 +96,7 @@ The implementation follows the project specification with a clear separation bet
 
 - `main.c`: argument parsing and entry point.
 - `simulation.c`: initialization of shared simulation state and thread startup.
+- `coders.c`: coder setup and thread lifecycle.
 - `coder_routine.c`: coder lifecycle and state transitions.
 - `dongles.c`: dongle creation and cleanup.
 - `adquire1.c/adquire2.c`: resource acquisition logic, cooldown checks, and queue management.
@@ -103,6 +104,7 @@ The implementation follows the project specification with a clear separation bet
 - `monitor.c`: burnout detection thread.
 - `validate.c`: input validation.
 - `logger.c`: serialized logging.
+- `codexion.h`: shared types, constants, and declarations.
 
 ## Blocking cases handled
 
