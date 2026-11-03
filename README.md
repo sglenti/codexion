@@ -58,6 +58,8 @@ An optional flag allows to set at compile time the maximum number of coders acce
 make MAX_CODERS=128
 ```
 
+### Execution
+
 The program expects the following arguments:
 
 ```bash
