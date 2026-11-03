@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by slenti.*
+*This project has been created as part of the 42 curriculum by sglenti.*
 
 # Codexion
 
@@ -178,49 +178,65 @@ cause false progress when the required condition is still unsatisfied.
 
 ## Thread synchronization mechanisms
 
-The implementation relies on several standard POSIX synchronization primitives.
+The implementation relies on just a few POSIX synchronization primitives to
+coordinate the simulation safely.
 
 ### `pthread_mutex_t`
 
-Mutexes protect shared state that must be updated atomically:
+Mutexes protect the parts of the simulation that must be updated atomically:
 
-- the global log output,
-- the scheduler state and queue,
-- the state transitions used by the monitor,
-- and each individual dongle’s lock state.
+- each dongle's state and wait queue, by `dongle->mutex`
+- the global simulation and coders state guarded by `state_mutex`,
+- the log output guarded by `log_mutex`.
 
-This prevents races such as two coders simultaneously reading or writing the same shared resource state.
+These locks prevent races such as two coders reading or writing the same shared
+state at the same time.
 
 ### `pthread_cond_t`
 
-Condition variables are used to block a thread until a resource becomes available or a cooldown expires.
+Condition variables are used to block threads until the resource state changes
+in a way that matters to them.
 
-Typical flow:
+The usual pattern is:
+1. acquire the relevant mutexes,
+2. check whether the condition is satisfied,
+3. if not, wait on the condition variable,
+4. when another thread signals or broadcasts, re-check the predicate,
+5. continue only if the condition is now true.
 
-1. A coder registers its request for a dongle.
-2. It checks whether the dongle is taken, cooling down, or not the current valid winner.
-3. If not immediately eligible, it waits on the condition variable.
-4. When a dongle is released or a time threshold changes, a broadcast wakes waiting coders.
-5. The awakened coders re-check their conditions and continue only if they are eligible.
+This avoids busy-waiting and keeps the wakes synchronized with the actual state
+changes.
 
-This is critical for avoiding busy-waiting and for coordinating the thread wake-up sequence.
+### Scheduler request queues
 
-### Custom waiting structure and scheduler priority queue
+Each dongle owns a compact request heap. The heap stores only the waiting coder
+identifier and its scheduling priority:
 
-Each dongle owns a small custom heap-like request structure. It stores the coder identifiers and their scheduling priority:
+- for FIFO: the request arrival time,
+- for EDF: the deadline computed from the last compile time and burnout
+  threshold.
 
-- for FIFO: arrival time,
-- for EDF: the deadline (`last_compile_time + time_to_burnout`).
-
-This queue is the core of the arbitration policy. It avoids standard library priority queue usage and keeps the ordering logic explicit and project-compliant.
+The heap is the arbitration layer for each dongle: it decides which waiting
+coder should be allowed to proceed next, while the mutex protects concurrent
+access to the queue itself.
 
 ### Monitor and coder communication
 
-The monitor thread communicates shutdown information to the coders via a shared running flag and scheduler condition broadcast. When a burnout is detected, the monitor stops the simulation and wakes the waiting threads so that they leave the waiting state cleanly and do not remain blocked forever.
+The monitor thread observes last compile timestamps and checks for burnout. When burnout
+is detected, it sets the global running flag to stopped and broadcasts on every
+dongle condition variable so that waiting coders wake and exit correctly.
 
-### Example of race prevention
+This keeps the monitor separate from the normal coder activity, which is
+important for keeping the burnout detection logic independent from the resource
+acquisition cycle.
 
-A race would exist if two coders both read the same dongle state and both decide it is available at the same time. The project prevents this by protecting access with mutexes and by controlling queue insertion and release through synchronized paths. Only one thread at a time can modify the wait queue or the resource state relevant to the arbitration decision.
+### Logging synchronization
+
+Each log message is protected by `log_mutex`. This serializes writes to stdout
+and prevents the output lines from interleaving across multiple threads.
+Without this lock, events such as dongle acquisition and burnout would be
+difficult to read or analyze reliably.
+
 
 ## Resources
 
@@ -236,10 +252,9 @@ A race would exist if two coders both read the same dongle state and both decide
 AI was used as an auxiliary tool during this project for:
 
 - reasoning about the concurrency model and edge cases,
-- validating the correctness of the shutdown and burnout logic,
-- clarifying synchronization patterns and fairness concerns,
-- reviewing the README structure to ensure the subject requirements were fully covered,
-- and helping structure the explanation of FIFO/EDF arbitration and burnout detection.
+- clarifying synchronization patterns and concepts,
+- validating the correctness of the simulation logic,
+- reviewing the README structure to ensure the subject requirements were fully covered.
 
 The final implementation and correctness decisions were still verified against the project requirements and the behavior of the code itself.
 
