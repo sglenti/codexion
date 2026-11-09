@@ -23,8 +23,8 @@ static void	take_dongles(t_coder *coder)
 int	adquire_dongles(t_coder *coder, t_common_data *data)
 {
 	heap_reg(coder, data->settings->scheduler);
-	wait_for_dongles(coder, data);
-	take_dongles(coder);
+	if (!wait_for_dongles(coder, data))
+		take_dongles(coder);
 	heap_dereg(coder);
 	if (!sim_is_running(data))
 		return (1);

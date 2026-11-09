@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:10:04 by slenti            #+#    #+#             */
-/*   Updated: 2026/11/03 16:07:33 by slenti           ###   ########.fr       */
+/*   Updated: 2026/11/09 22:31:06 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ int	wait_for_dongles(t_coder *coder, t_common_data *data)
 	while (1)
 	{
 		if (!sim_is_running(data))
-			return (0);
+			return (FAILURE);
 		pthread_mutex_lock(&coder->dongle1->mutex);
 		pthread_mutex_lock(&coder->dongle2->mutex);
 		status1 = is_blocked(coder, coder->dongle1, data);
