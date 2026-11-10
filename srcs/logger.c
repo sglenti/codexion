@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/28 18:03:07 by slenti            #+#    #+#             */
-/*   Updated: 2026/10/29 21:23:27 by slenti           ###   ########.fr       */
+/*   Updated: 2026/11/10 21:27:58 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,12 @@ void	write_log(char *str, int id, int d_id, t_common_data *data)
 
 	pthread_mutex_lock(&data->log_mutex);
 	now = get_elapsed_ms(data->start_time);
-	if (d_id)
-		printf(str, now, id, d_id);
-	else
-		printf(str, now, id);
+	if (sim_is_running(data) == 1 || d_id == -1)
+	{
+		if (d_id > 0)
+			printf(str, now, id, d_id);
+		else
+			printf(str, now, id);
+	}
 	pthread_mutex_unlock(&data->log_mutex);
 }

@@ -44,7 +44,7 @@ static void	burned_out(t_coder coder, t_common_data *data)
 		pthread_mutex_unlock(&data->dongles[i].mutex);
 		i++;
 	}
-	write_log(BURNED, coder.id, 0, data);
+	write_log(BURNED, coder.id, -1, data);
 }
 
 static void	*m_check(void *args)
