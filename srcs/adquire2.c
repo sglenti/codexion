@@ -28,8 +28,8 @@ int	adquire_dongles(t_coder *coder, t_common_data *data)
 	heap_dereg(coder);
 	if (!sim_is_running(data))
 		return (1);
-	write_log(DONGLE, coder->id, coder->dongle1->id, data);
-	write_log(DONGLE, coder->id, coder->dongle2->id, data);
+	write_log(DONGLE, coder->id, 0, data);
+	write_log(DONGLE, coder->id, 0, data);
 	return (0);
 }
 
