@@ -69,12 +69,13 @@ void	*coder_routine(void *args)
 	coder = (t_coder *)args;
 	data = (t_common_data *)coder->data;
 	pthread_mutex_lock(&data->state_mutex);
-	while (!data->is_running)
+	while (data->is_running == 3)
 		pthread_cond_wait(&data->sim_start_cond, &data->state_mutex);
-	coder->last_compile_time = get_elapsed_ms(data->start_time);
+	if (data->is_running != 1)
+		return (pthread_mutex_unlock(&data->state_mutex), NULL);
+	else
+		coder->last_compile_time = get_elapsed_ms(data->start_time);
 	pthread_mutex_unlock(&data->state_mutex);
-	if (sim_is_running(data) == 2)
-		return (NULL);
 	while (1)
 	{
 		if (adquire_dongles(coder, data))

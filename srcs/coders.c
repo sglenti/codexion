@@ -40,6 +40,7 @@ int	create_coders(t_common_data *data)
 		return (FAILURE);
 	memset(data->coders, 0, sizeof(t_coder) * n);
 	i = 0;
+	data->is_running = 3;
 	while (i < n)
 	{
 		data->coders[i].id = i + 1;
