@@ -26,7 +26,7 @@ static int	val_key(char *arg, char *key)
 }
 
 /* Check the argument for valid positive integers only.
- * Returns 1 for valid, 0 for wrong vaules. */
+ * Returns 1 for valid, 0 for invalid vaules. */
 static int	val_int(char *num_str)
 {
 	int	valid;
@@ -65,7 +65,7 @@ static int	val_sched(char *str)
 	else if (!strcmp(str, "edf"))
 		return (EDF);
 	else
-		return (WRONG);
+		return (INVALID);
 }
 
 /*	Check a key: value pair argument for validity.
@@ -99,7 +99,7 @@ static int	validate_arg(char **args, char *key)
 }
 
 /*		Parse arguments and load them into simulation struct.
- * 
+ *
  *		On success, loads the arguments in the simulation struct passed as
  *		argument and returns SUCCESS. Returns FAILURE with invalid arguments. */
 int	parse_args(t_simulation *simulation, int args_count, char **args)

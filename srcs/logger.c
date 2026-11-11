@@ -18,7 +18,7 @@ void	write_log(char *str, int id, int d_id, t_common_data *data)
 
 	pthread_mutex_lock(&data->log_mutex);
 	now = get_elapsed_ms(data->start_time);
-	if (sim_is_running(data) == 1 || d_id == -1)
+	if (sim_is_running(data) == RUNNING || d_id == -1)
 	{
 		if (d_id > 0)
 			printf(str, now, id, d_id);

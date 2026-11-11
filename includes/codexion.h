@@ -90,12 +90,12 @@ typedef struct s_common_data
 
 enum	e_Sched
 {
-	WRONG,
+	INVALID,
 	FIFO,
 	EDF
 };
 
-enum	e_Status
+enum	e_Dongle_Status
 {
 	AVAILABLE,
 	TAKEN,
@@ -107,6 +107,14 @@ enum	e_Result
 {
 	SUCCESS,
 	FAILURE
+};
+
+enum	e_Sim_Status
+{
+	TERMINATED,
+	RUNNING,
+	STARTING,
+	ABORTED
 };
 
 # define DONGLE_DEBUG "%ld %d has taken a dongle(%d)\n"

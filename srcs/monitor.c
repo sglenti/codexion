@@ -34,7 +34,7 @@ static void	burned_out(t_coder coder, t_common_data *data)
 	int		i;
 
 	pthread_mutex_lock(&data->state_mutex);
-	data->is_running = 0;
+	data->is_running = TERMINATED;
 	pthread_mutex_unlock(&data->state_mutex);
 	i = 0;
 	while (i < data->settings->number_of_coders)
@@ -81,7 +81,7 @@ int	start_monitor(t_common_data *data, pthread_t *monitor)
 	if (pthread_create(monitor, NULL, m_check, data))
 	{
 		pthread_mutex_lock(&data->state_mutex);
-		data->is_running = 2;
+		data->is_running = ABORTED;
 		pthread_cond_broadcast(&data->sim_start_cond);
 		pthread_mutex_unlock(&data->state_mutex);
 		fprintf(stderr, "Error: Failed to create monitor thread\n");

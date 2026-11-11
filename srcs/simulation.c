@@ -79,7 +79,7 @@ int	simulate(t_simulation *settings)
 		return (rmlcks(data), clean_all(&data, settings->number_of_coders), 1);
 	gettimeofday(&data->start_time, NULL);
 	pthread_mutex_lock(&data->state_mutex);
-	data->is_running = 1;
+	data->is_running = RUNNING;
 	pthread_cond_broadcast(&data->sim_start_cond);
 	pthread_mutex_unlock(&data->state_mutex);
 	if (start_monitor(data, &monitor_id) == FAILURE)

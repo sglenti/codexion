@@ -40,7 +40,7 @@ int	create_coders(t_common_data *data)
 		return (FAILURE);
 	memset(data->coders, 0, sizeof(t_coder) * n);
 	i = 0;
-	data->is_running = 3;
+	data->is_running = STARTING;
 	while (i < n)
 	{
 		data->coders[i].id = i + 1;
@@ -67,7 +67,7 @@ int	start_coders(t_common_data *data)
 &data->coders[i]))
 		{
 			pthread_mutex_lock(&data->state_mutex);
-			data->is_running = 2;
+			data->is_running = ABORTED;
 			pthread_cond_broadcast(&data->sim_start_cond);
 			pthread_mutex_unlock(&data->state_mutex);
 			j = 0;
@@ -98,7 +98,7 @@ void	wait_for_coders(t_common_data *data, pthread_t	*monitor_id)
 		i++;
 	}
 	pthread_mutex_lock(&data->state_mutex);
-	data->is_running = 0;
+	data->is_running = TERMINATED;
 	pthread_mutex_unlock(&data->state_mutex);
 	if (*monitor_id)
 		pthread_join(*monitor_id, NULL);

@@ -69,9 +69,9 @@ void	*coder_routine(void *args)
 	coder = (t_coder *)args;
 	data = (t_common_data *)coder->data;
 	pthread_mutex_lock(&data->state_mutex);
-	while (data->is_running == 3)
+	while (data->is_running == STARTING)
 		pthread_cond_wait(&data->sim_start_cond, &data->state_mutex);
-	if (data->is_running != 1)
+	if (data->is_running != RUNNING)
 		return (pthread_mutex_unlock(&data->state_mutex), NULL);
 	else
 		coder->last_compile_time = get_elapsed_ms(data->start_time);
