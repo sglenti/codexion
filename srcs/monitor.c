@@ -32,6 +32,7 @@ static long	last_comp(long last, t_common_data *data)
 static void	burned_out(t_coder coder, t_common_data *data)
 {
 	int		i;
+	long	now;
 
 	pthread_mutex_lock(&data->state_mutex);
 	data->is_running = TERMINATED;
@@ -44,7 +45,10 @@ static void	burned_out(t_coder coder, t_common_data *data)
 		pthread_mutex_unlock(&data->dongles[i].mutex);
 		i++;
 	}
-	write_log(BURNED, coder.id, -1, data);
+	pthread_mutex_lock(&data->log_mutex);
+	now = get_elapsed_ms(data->start_time);
+	printf(BURNED, now, coder.id);
+	pthread_mutex_unlock(&data->log_mutex);
 }
 
 static void	*m_check(void *args)
