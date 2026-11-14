@@ -43,7 +43,7 @@ static int	val_int(char *num_str)
 	{
 		if (*num_str < '0' || *num_str > '9')
 			return (0);
-		if (*num_str > '0')
+		if (*num_str >= '0')
 			valid = 1;
 		num_str++;
 	}

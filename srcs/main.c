@@ -72,7 +72,7 @@ int	main(int argc, char **argv)
 		show_usage();
 	else if (settings->number_of_coders == 1)
 		single_coder(settings);
-	else
+	else if (settings->number_of_compiles_required > 0)
 		exit_status = simulate(settings);
 	cleanup((void **)&settings);
 	return (exit_status);
