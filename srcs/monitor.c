@@ -66,7 +66,7 @@ static void	*m_check(void *args)
 			pthread_mutex_lock(&data->state_mutex);
 			last = data->coders[i].last_compile_time;
 			pthread_mutex_unlock(&data->state_mutex);
-			if (last && last_comp(last, data) > data->settings->time_to_burnout)
+			if (last_comp(last, data) > data->settings->time_to_burnout)
 			{
 				burned_out(data->coders[i], data);
 				break ;
