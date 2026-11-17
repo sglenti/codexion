@@ -73,7 +73,7 @@ static void	*m_check(void *args)
 			}
 			i++;
 		}
-		usleep(10);
+		usleep(2000);
 	}
 	return (NULL);
 }
