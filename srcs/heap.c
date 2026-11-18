@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:02:12 by slenti            #+#    #+#             */
-/*   Updated: 2026/11/18 14:43:39 by slenti           ###   ########.fr       */
+/*   Updated: 2026/11/18 17:27:11 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,19 @@ static void	swap_nodes(t_heap_node *a, t_heap_node *b)
 
 static void	add_reg_to_dongle(t_heap *h, int id, long priority, long seq_num)
 {
+	int	other_id;
+
 	h->nodes[h->size].coder_id = id;
 	h->nodes[h->size].priority = priority;
 	h->nodes[h->size].seq_num = seq_num;
 	h->size++;
 	if (h->size == 2)
 	{
+		other_id = h->nodes[0].coder_id;
 		if (h->nodes[0].priority > h->nodes[1].priority
 			|| (h->nodes[0].priority == h->nodes[1].priority
-				&& id % 2 == 0))
+				&& ((id % 2 != 0 && other_id % 2 == 0)
+					|| (id % 2 != 0 && other_id % 2 != 0 && id < other_id))))
 			swap_nodes(&h->nodes[0], &h->nodes[1]);
 	}
 }
