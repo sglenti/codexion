@@ -6,7 +6,7 @@
 /*   By: slenti <slenti@student.42porto.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/13 10:02:12 by slenti            #+#    #+#             */
-/*   Updated: 2026/11/18 14:25:24 by slenti           ###   ########.fr       */
+/*   Updated: 2026/11/18 14:43:39 by slenti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ static void	add_reg_to_dongle(t_heap *h, int id, long priority, long seq_num)
 	{
 		if (h->nodes[0].priority > h->nodes[1].priority
 			|| (h->nodes[0].priority == h->nodes[1].priority
-//				&& h->nodes[0].seq_num > h->nodes[1].seq_num))
 				&& id % 2 == 0))
 			swap_nodes(&h->nodes[0], &h->nodes[1]);
 	}
@@ -50,8 +49,6 @@ void	heap_reg(t_coder *coder, int policy)
 		priority = get_elapsed_ms(data->start_time);
 	else
 		priority = coder->last_compile_time + data->settings->time_to_burnout;
-	//if (coder->id % 2)
-	//	priority -= 1;
 	pthread_mutex_unlock(&data->state_mutex);
 	pthread_mutex_lock(&coder->dongle1->mutex);
 	pthread_mutex_lock(&coder->dongle2->mutex);
